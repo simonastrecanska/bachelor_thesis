@@ -1,5 +1,3 @@
-# src/message_generator/generator.py
-
 """
 Message Generator Module
 
