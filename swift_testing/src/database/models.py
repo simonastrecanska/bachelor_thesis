@@ -5,7 +5,7 @@ Database models for the SWIFT testing framework.
 import logging
 from typing import Dict, List, Any, Optional
 from sqlalchemy import Column, Integer, String, Text, Float, DateTime, ForeignKey
-from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy.orm import declarative_base
 from sqlalchemy.orm import relationship
 from sqlalchemy.sql import func
 
@@ -26,30 +26,21 @@ class Parameters(Base):
 
 
 class MessageTemplate(Base):
-    """Message templates table."""
-    __tablename__ = 'message_templates'
-    
+    """
+    Models a SWIFT message template, which provides the base structure for generating SWIFT messages.
+    """
+    __tablename__ = "templates"
+
     id = Column(Integer, primary_key=True)
-    template_type = Column(String(100), unique=True, nullable=False)
+    template_type = Column(String, unique=True, nullable=False)
     template_content = Column(Text, nullable=False)
-    description = Column(Text)
+    description = Column(String)
     created_at = Column(DateTime, default=func.now())
+    expected_routing_label = Column(String)
     updated_at = Column(DateTime, default=func.now(), onupdate=func.now())
     
     def __repr__(self):
         return f"<MessageTemplate(id={self.id}, template_type='{self.template_type}')>"
-
-
-class Template(Base):
-    """Legacy message templates table."""
-    __tablename__ = 'template'
-    
-    template_id = Column(Integer, primary_key=True)
-    template_name = Column(String(100))
-    template_text = Column(Text)
-    
-    def __repr__(self):
-        return f"<Template(template_id={self.template_id}, template_name='{self.template_name}')>"
 
 
 class Messages(Base):
@@ -57,11 +48,12 @@ class Messages(Base):
     __tablename__ = 'messages'
     
     message_id = Column(Integer, primary_key=True)
-    template_id = Column(Integer, ForeignKey('template.template_id'), nullable=False)
+    template_id = Column(Integer, ForeignKey('templates.id'), nullable=False)
     param_id = Column(Integer, ForeignKey('parameters.param_id'))
     generated_text = Column(Text)
+    created_at = Column(DateTime, default=func.now())
     
-    template = relationship("Template")
+    template = relationship("MessageTemplate")
     parameters = relationship("Parameters")
     
     def __repr__(self):
