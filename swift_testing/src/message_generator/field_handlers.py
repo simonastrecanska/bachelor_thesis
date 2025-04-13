@@ -1,3 +1,15 @@
+"""
+Field Handlers Module
+
+This module provides a system for handling various SWIFT message
+fields and their substitution during message generation. It defines a common interface
+via the FieldHandler abstract base class and includes dedicated handlers for common fields
+(e.g., :20:, :32A:, etc.) and multi-line blocks (sender and beneficiary blocks).
+
+All handlers are dynamically registered in a global registry so that new field handlers
+can be added or modified without changing the core message generator code.
+"""
+
 import re
 import random
 import string
@@ -159,8 +171,13 @@ def initialize_field_handlers(config: Any) -> None:
         config: A validated configuration object (Pydantic model) for message generation.
     """
     FIELD_HANDLER_REGISTRY.clear()
-    substitutions = config.message_generation.substitutions
-    field_patterns = config.message_generation.field_patterns
+    
+    if isinstance(config, dict):
+        substitutions = config.get("message_generation", {}).get("substitutions", {})
+        field_patterns = config.get("message_generation", {}).get("field_patterns", {})
+    else:
+        substitutions = config.message_generation.substitutions
+        field_patterns = config.message_generation.field_patterns
 
     for field_type in field_patterns:
         if field_type == "reference":
@@ -176,4 +193,5 @@ def initialize_field_handlers(config: Any) -> None:
         elif field_type == "beneficiary_block":
             register_field_handler(field_type, BeneficiaryBlockFieldHandler(substitutions))
         else:
+            # For any unknown field type, use the default handler.
             register_field_handler(field_type, DefaultFieldHandler(substitutions))
