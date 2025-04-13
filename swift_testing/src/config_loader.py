@@ -1,4 +1,3 @@
-
 """
 Configuration Loader Module
 
@@ -9,7 +8,7 @@ import os
 import yaml
 import logging
 from typing import Dict, Any, List
-from pydantic import BaseModel, Field, ValidationError, validator
+from pydantic import BaseModel, Field, ValidationError, field_validator
 
 logger = logging.getLogger(__name__)
 
@@ -23,12 +22,13 @@ class DatabaseConfig(BaseModel):
     pool_size: int = 5
     connection_timeout: int = 30
 
-    @validator("username", pre=True)
-    def map_username(cls, v, values, **kwargs):
+    @field_validator("username", mode="before")
+    @classmethod
+    def map_username(cls, v, info):
         if isinstance(v, str):
             return v
-        elif "user" in values:
-            return values["user"]
+        elif info.data and "user" in info.data:
+            return info.data["user"]
         return v
 
 class PathsConfig(BaseModel):
@@ -68,7 +68,8 @@ class ConfigModel(BaseModel):
     model: ModelConfig
     evaluation: EvaluationConfig
 
-    @validator("database", pre=True)
+    @field_validator("database", mode="before")
+    @classmethod
     def map_database_keys(cls, v):
         if "user" in v and "username" not in v:
             v["username"] = v.pop("user")
