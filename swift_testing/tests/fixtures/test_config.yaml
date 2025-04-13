@@ -1,0 +1,46 @@
+database:
+  host: localhost
+  port: 5432
+  dbname: test_swift_db
+  username: test_user
+  password: test_password
+  add_sample_data: false
+  pool_size: 5
+  connection_timeout: 30
+
+paths:
+  model_dir: ./tests/fixtures/models
+  output_dir: ./tests/fixtures/output
+  input_dir: ./tests/fixtures/input
+  log_dir: ./tests/fixtures/logs
+  template_dir: ./tests/fixtures/templates
+
+message_generation:
+  seed: 42
+  perturbation_degree: 0.2
+  field_substitution_rate: 0.3
+  max_variations_per_template: 5
+
+  
+
+model:
+  version: 1.0.0
+  prediction_threshold: 0.5
+  model_type: random_forest
+  model_params:
+    n_estimators: 100
+    max_depth: 10
+    random_state: 42
+  feature_extraction:
+    vectorizer: tfidf
+    max_features: 1000
+    ngram_range: [1, 3]
+  hyperparameter_tuning: {}
+
+evaluation:
+  metrics: [accuracy, precision, recall, f1]
+  confusion_matrix: true
+  cross_validation:
+    enabled: true
+    n_splits: 5
+  output_format: [csv, json, plot]
