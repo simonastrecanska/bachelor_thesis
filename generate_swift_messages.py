@@ -5,9 +5,13 @@ Generate SWIFT Messages
 This script:
 1. Loads configuration from swift_testing/config/config.yaml
 2. Connects to the database
-3. Retrieves ALL message templates from the database
+3. Retrieves message templates from the database
 4. Generates SWIFT messages using each template
 5. Saves the generated messages back to the database
+
+It supports two generation modes:
+- Standard mode: Uses the TemplateVariator
+- AI mode: Uses Ollama to generate messages with AI
 """
 
 import argparse
@@ -22,6 +26,7 @@ sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
 from swift_testing.src.database.db_manager import create_database_manager
 from swift_testing.src.message_generator.template_variator import create_template_variator
+from swift_testing.src.message_generator.ai_generator import create_ollama_generator
 
 logging.basicConfig(
     level=logging.INFO,
@@ -59,9 +64,11 @@ def main():
     """Main function."""
     parser = argparse.ArgumentParser(description='Generate SWIFT messages using templates')
     parser.add_argument('--config', required=True, help='Path to config file')
-    parser.add_argument('--count', type=int, default=10, help='Number of messages to generate per template')
+    parser.add_argument('--count', type=int, default=10, help='Number of messages per template')
     parser.add_argument('--type', help='Template type to use (e.g., MT103)')
-    parser.add_argument('--randomness', type=float, default=0.5, help='Randomness factor for message generation (0.0-1.0)')
+    parser.add_argument('--ai', action='store_true', help='Use AI (Ollama) for generation')
+    parser.add_argument('--model', default='llama3', help='Ollama model to use (with --ai)')
+    parser.add_argument('--temperature', type=float, default=0.7, help='AI temperature (with --ai)')
     args = parser.parse_args()
 
     config = load_config(args.config)
@@ -94,17 +101,36 @@ def main():
     
     logger.info(f"Found {len(templates)} templates to process")
     
+    generation_method = "AI (Ollama)" if args.ai else "Template Variator"
     param_id = db_manager.create_parameter(
-        test_name=f"Random message generation {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}",
-        description=f"Generated with randomness factor {args.randomness}"
+        test_name=f"Message generation {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}",
+        description=f"Generated with {generation_method}"
     )
     
-    variator = create_template_variator(randomness=args.randomness, db_uri=db_uri)
+    if args.ai:
+        logger.info(f"Using AI generation with model: {args.model}")
+        ai_config = config.get('message_generation', {}).get('ai_generation_config', {})
+        model_name = args.model or ai_config.get('model', 'llama3')
+        temperature = args.temperature or ai_config.get('temperature', 0.7)
+        api_base = ai_config.get('api_base', 'http://localhost:11434/api')
+        system_prompt = ai_config.get('system_prompt')
+        
+        generator = create_ollama_generator(
+            model_name=model_name,
+            temperature=temperature,
+            system_prompt=system_prompt,
+            api_base=api_base
+        )
+        generation_method = "generate_variation"
+    else:
+        logger.info(f"Using template variator")
+        variator = create_template_variator(db_uri=db_uri)
+        generation_method = "add_variations"
     
     total_messages = 0
     
     for template in templates:
-        template_id = template.get('id')
+        template_id = template.get('id', template.get('template_id'))
         template_type = template.get('template_type', template.get('template_name', 'Unknown'))
         template_content = template.get('template_content', template.get('template_text', ''))
         
@@ -116,24 +142,30 @@ def main():
         
         for i in range(args.count):
             try:
-                varied_template = variator.add_variations(template_content)
+                if args.ai:
+                    generated_message = generator.generate_variation(template_content)
+                else:
+                    generated_message = variator.add_variations(template_content)
                 
+                expected_routing_label = template.get('expected_routing_label', '')
                 message_id = db_manager.create_message(
                     template_id=template_id,
                     param_id=param_id,
-                    generated_text=varied_template
+                    generated_text=generated_message,
+                    expected_routing_label=expected_routing_label
                 )
                 
                 if message_id:
                     total_messages += 1
-                    logger.info(f"Generated message #{i+1} for template {template_type}, saved with ID: {message_id}")
+                    logger.info(f"Generated message {i+1}/{args.count} for template {template_type}")
                 else:
-                    logger.error(f"Failed to save message #{i+1} for template {template_type}")
+                    logger.warning(f"Failed to save message {i+1}/{args.count} for template {template_type}")
+            
             except Exception as e:
-                logger.error(f"Error generating message for {template_type}: {e}")
+                logger.error(f"Error generating message {i+1} for template {template_type}: {e}")
     
-    logger.info(f"Successfully generated and stored {total_messages} messages across all templates.")
-    logger.info(f"Test parameter ID: {param_id}")
+    logger.info(f"Generation complete. Created {total_messages} messages.")
+
 
 if __name__ == "__main__":
     main() 
