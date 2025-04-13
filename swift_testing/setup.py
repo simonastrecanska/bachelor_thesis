@@ -12,12 +12,10 @@ setup(
     name="swift-testing",
     version="1.0.0",
     author="Simona Strecanska",
-    author_email="simona.strec@gmail.com",
     description="Framework for testing SWIFT message generation and routing",
     long_description=long_description,
     long_description_content_type="text/markdown",
-    url="https://github.com/simonastrecanska/bachelor_thesis",
-    package_dir={"": "."},
+    url="https://github.com/simonastrecanska/bachelor_thesis.git",
     packages=find_packages(where="."),
     classifiers=[
         "Programming Language :: Python :: 3",
@@ -31,14 +29,16 @@ setup(
         "sqlalchemy>=2.0.0",
         "pandas>=1.5.0",
         "scikit-learn>=1.0.0",
-        "matplotlib>=3.5.0",
         "pytest>=7.0.0",
         "python-dotenv>=0.21.0",
-        "numpy>=1.22.0"
+        "numpy>=1.22.0",
+        "requests>=2.28.0"
     ],
     entry_points={
         "console_scripts": [
-            "swift-testing=swift_testing.src.interface.cli:main",
+            "swift-testing=src.interface.cli:main",
+            "swift-run-test=src.run_test:main",
+            "swift-setup-db=src.database.setup_db:main",
             "swift-check-db=swift_testing.check_database:main",
             "swift-view-messages=view_messages:main",
             "swift-generate-messages=generate_swift_messages:main",
