@@ -185,31 +185,6 @@ Output results: The primary output of the framework is the generated SWIFT messa
 	•	If you enabled logging (by configuring the logging section in the config file), a log file (e.g., swift_testing.log) will record actions taken, which can be useful for debugging or audit trails.
 	•	If you use the evaluation or test running features (for advanced users who integrate a model), the output could include evaluation metrics (accuracy, precision, etc.) printed to console or saved to files (CSV/JSON) as configured. By default, if you only stick to generation and storage, you won’t need to deal with these.
 
-How to retrieve and use the output: Once messages are generated and in the database, you can:
-	•	Use the provided viewing tools (swift-check-db or swift-view-messages) to fetch and display them.
-	•	Connect to the database with any SQL client and query the messages table to export or inspect the messages.
-	•	Feed these messages into other systems or programs for further testing (for example, run them through a parser, or use them as test cases for a message-routing algorithm).
-	•	The framework ensures that each generated message conforms to the general structure of the chosen SWIFT message type, making them suitable as test input for downstream processes.
 
-Known Issues and Limitations
-
-While the SWIFT Message Testing Framework is a powerful tool for generating test data, please be aware of the following limitations:
-	•	Database Requirement: You must have a database set up to use this tool. The default configuration is for PostgreSQL. If you don’t have access to a PostgreSQL server, you’ll need to adjust the configuration for another database (or use SQLite for simple tests). Users unfamiliar with databases might find the setup challenging – consider seeking help from a developer or DBA to configure the database initially. There is no built-in database; one must be provided by the user.
-	•	Limited Template Library: The framework comes with a few standard SWIFT message templates (common message types like MT103, MT202, MT950). If your testing requires other message types, you will need to supply appropriate template files for those. Ensure any custom template is correctly formatted, as the generation relies on the template structure to insert variations. Malformed templates could lead to errors or incorrectly generated messages.
-	•	Randomness vs. Validity: The randomness parameter allows generating varied data, but extremely high variation (--randomness 1.0) might produce combinations of field values that are unrealistic or not logically consistent (since it randomizes without context). The framework does not currently validate that a generated message would pass all SWIFT network validation rules – the focus is on structural correctness and variety. Use caution if absolute realism is required, and consider reviewing or filtering the output messages.
-	•	Machine Learning Integration: While the project’s description mentions testing ML models for message routing, out-of-the-box it does not include a pre-trained model or data to perform an actual routing test. The configuration file has placeholders for model settings and evaluation metrics, and there are advanced scripts (run_test.py, route_messages.py) which are intended for integration with a model. General users not working on the thesis project can ignore these unless they have their own model to integrate. In short, the ML model evaluation functionality is present but requires custom setup (such as training a model and plugging it into the framework) which is beyond the scope of basic usage.
-	•	Platform Limitations: The tool is command-line based and requires some comfort with terminal operations. There is no graphical user interface. All interactions are via the terminal/command prompt. This is a design choice for flexibility and automation. However, it means the user should be comfortable typing commands and editing configuration files.
-	•	Performance: Generating a very large number of messages (say, tens of thousands) will be limited by your machine’s performance and database throughput. The framework uses efficient methods via SQLAlchemy and bulk operations where possible, but very heavy usage might take time. If you plan to generate extremely large volumes, ensure your database can handle the inserts and you have adequate system resources.
-
-As of the latest update, no critical bugs are known. If you encounter any issues (errors, crashes, or unexpected behavior), consider raising an issue on the project’s repository so it can be addressed.
-
-Contact and Contributions
-
-This project was developed as part of an academic thesis by the repository owner. We welcome feedback and contributions from the community:
-	•	Questions or Support: If you have questions on how to use the framework or run into trouble, you can open an issue in the GitHub repository’s Issues section. This is the preferred way to seek help, as it allows others to see solutions and contribute.
-	•	Contributing: Developers or advanced users are encouraged to contribute improvements. You can fork the repository, make changes (for example, add more templates, improve the random generator, or fix any bugs), and then submit a pull request. All contributions will be reviewed.
-	•	Contact: If you need to contact the maintainer directly, you may do so via the contact information provided in the repository (for example, an email on the profile or a direct message). However, for project-related discussions, please use GitHub Issues or Discussions for transparency.
-
-By creating an issue or pull request, you help make the tool better for everyone. Since this is a project rooted in research, real-world use cases and feedback are extremely valuable.
 
 Happy testing!
