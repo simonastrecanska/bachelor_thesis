@@ -2,9 +2,7 @@
 Field Handlers Module
 
 This module provides a system for handling various SWIFT message
-fields and their substitution during message generation. It defines a common interface
-via the FieldHandler abstract base class and includes dedicated handlers for common fields
-(e.g., :20:, :32A:, etc.) and multi-line blocks (sender and beneficiary blocks).
+fields and their substitution during message generation.
 
 All handlers are dynamically registered in a global registry so that new field handlers
 can be added or modified without changing the core message generator code.
@@ -62,7 +60,7 @@ class ReferenceFieldHandler(FieldHandler):
 
 class DateAmountCurrencyFieldHandler(FieldHandler):
     """
-    Handler for SWIFT date, currency, and amount fields (e.g., :32A:YYMMDDCURRAMOUNT).
+    Handler for SWIFT date, currency, and amount fields
 
     Expects the regex to capture four groups:
       1. Field tag (e.g., ":32A:")
@@ -100,7 +98,7 @@ class SenderBlockFieldHandler(FieldHandler):
     Handler for multi-line sender blocks.
 
     Expected regex capture groups:
-      1. The sender field tag line (e.g., ":50K:" plus any extra text, ending with a newline)
+      1. The sender field tag line
       2. The sender name (line 2)
       3. The sender address (line 3)
       4. Trailing newline or end-of-string
@@ -121,7 +119,7 @@ class BeneficiaryBlockFieldHandler(FieldHandler):
     Handler for multi-line beneficiary blocks.
 
     Expected regex capture groups:
-      1. The beneficiary field tag line (e.g., ":59:" plus any extra text, ending with a newline)
+      1. The beneficiary field tag line
       2. The beneficiary name (line 2)
       3. The beneficiary address (line 3)
       4. Trailing newline or end-of-string
@@ -163,8 +161,7 @@ def initialize_field_handlers(config: Any) -> None:
     """
     Initialize and register field handlers based on the provided configuration.
 
-    This function reads the 'field_patterns' from the configuration (which are defined
-    in a YAML file and validated by Pydantic) and registers dedicated handlers for each
+    This function reads the 'field_patterns' from the configuration and registers dedicated handlers for each
     field type using their associated substitution lists.
 
     Args:

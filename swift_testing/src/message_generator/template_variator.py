@@ -3,8 +3,7 @@ Template Variator Module
 
 This module provides functionality to add random variations to SWIFT message templates
 before they are processed by the message generator. The goal is to increase the diversity
-of generated messages by modifying templates directly, thus better testing the robustness
-of downstream routing models.
+of generated messages by modifying templates directly.
 """
 
 import random

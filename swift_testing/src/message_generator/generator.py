@@ -56,7 +56,7 @@ class MessageGenerator:
         self.load_data_from_database()
         
     def load_data_from_database(self) -> None:
-        """Load variator data from the database with no fallbacks."""
+        """Load variator data from the database."""
         try:
             engine = create_engine(self.db_uri)
             with engine.connect() as conn:
