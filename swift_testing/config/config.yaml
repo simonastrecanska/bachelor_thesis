@@ -23,11 +23,14 @@ paths:
 model:
   version: "1.0.0"
   prediction_threshold: 0.5
-  model_type: "random_forest"
+  # Available model types: "bare_bones", "random_forest", "svm", "naive_bayes", "rule_based"
+  model_type: "bare_bones"  # Using the bare-bones model that can be easily extended
   model_params:
-    n_estimators: 100
-    max_depth: 10
-    random_state: 42
+    # Parameters used by various model types
+    n_estimators: 100        # Used by random_forest
+    max_depth: 10            # Used by random_forest
+    random_state: 42         # Used by all sklearn models
+    # TODO: Add your custom model parameters here
   feature_extraction:
     vectorizer: "tfidf"
     max_features: 1000

@@ -504,15 +504,136 @@ class RuleBasedRouter(SwiftMessageRouter):
             return "Unknown", 0.0
 
 
+class BareBonesRouter(SwiftMessageRouter):
+    """
+    A bare-bones router implementation that can be easily extended.
+    This provides a minimal working implementation with clear TODOs for students to extend.
+    """
+    
+    def __init__(self, config: Dict[str, Any]):
+        """
+        Initialize the bare-bones router.
+        
+        Args:
+            config: Model configuration
+        """
+        super().__init__(config)
+        self.known_labels = set()
+        self.default_label = "UNKNOWN"
+        # Simple in-memory store for patterns and their labels
+        self.pattern_rules = {}
+        
+        # TODO: Initialize your custom model components here.
+        # Examples:
+        # - self.classifier = None  # Add your ML model here
+        # - self.embeddings = {}    # Add embeddings for messages
+        # - self.features = []      # Define important features
+        logger.info("Initialized bare-bones router with minimal implementation")
+    
+    def train(self, messages: List[str], labels: List[str]) -> Dict[str, float]:
+        """
+        Train the bare-bones model.
+        
+        Args:
+            messages: List of message texts
+            labels: List of corresponding labels
+            
+        Returns:
+            Dictionary of training metrics
+        """
+        if not messages or not labels:
+            logger.warning("No training data provided")
+            return {"accuracy": 0.0, "precision": 0.0, "recall": 0.0, "f1": 0.0}
+        
+        # Store all unique labels seen during training
+        self.known_labels = set(labels)
+        if self.known_labels:
+            self.default_label = list(self.known_labels)[0]
+        
+        # Basic pattern recognition - identify key phrases that might indicate message type
+        for msg, label in zip(messages, labels):
+            # Extract basic patterns from messages
+            msg_processed = self.preprocess(msg)
+            
+            # Look for key phrases in message blocks (like :20:, :50K:, etc.)
+            for block_match in re.finditer(r':(\d+[A-Z]?):', msg_processed):
+                block_code = block_match.group(1)
+                if block_code not in self.pattern_rules:
+                    self.pattern_rules[block_code] = {}
+                
+                if label not in self.pattern_rules[block_code]:
+                    self.pattern_rules[block_code][label] = 0
+                    
+                self.pattern_rules[block_code][label] += 1
+        
+        logger.info(f"Trained bare-bones model on {len(messages)} messages")
+        logger.info(f"Identified {len(self.pattern_rules)} pattern rules")
+        
+        # TODO: Add your custom training logic here
+        # 1. Extract features from messages
+        # 2. Train a classifier on these features
+        # 3. Calculate and return training metrics
+        
+        # Return dummy metrics for now
+        return {
+            "accuracy": 0.6,  # Placeholder accuracy
+            "precision": 0.6,  # Placeholder precision
+            "recall": 0.6,     # Placeholder recall
+            "f1": 0.6          # Placeholder F1 score
+        }
+    
+    def predict(self, message: str) -> Tuple[str, float]:
+        """
+        Predict the routing for a message.
+        
+        Args:
+            message: Message text
+            
+        Returns:
+            Tuple of (predicted label, confidence score)
+        """
+        if not message:
+            return self.default_label, 0.5
+        
+        processed_msg = self.preprocess(message)
+        
+        # Simple rule-based prediction
+        label_scores = {label: 0.0 for label in self.known_labels}
+        if not label_scores:
+            return self.default_label, 1.0
+            
+        # Count matching patterns
+        for block_match in re.finditer(r':(\d+[A-Z]?):', processed_msg):
+            block_code = block_match.group(1)
+            if block_code in self.pattern_rules:
+                for label, count in self.pattern_rules[block_code].items():
+                    label_scores[label] += count
+        
+        # TODO: Implement your custom prediction logic here
+        # 1. Extract features from the input message
+        # 2. Apply your trained model to predict the label
+        # 3. Calculate a confidence score
+        
+        # Simple prediction based on pattern matches
+        if sum(label_scores.values()) > 0:
+            best_label = max(label_scores.items(), key=lambda x: x[1])[0]
+            total = sum(label_scores.values())
+            confidence = label_scores[best_label] / total if total > 0 else 0.5
+            return best_label, confidence
+        
+        # Fallback to default with low confidence
+        return self.default_label, 0.5
+
+
 def create_router(config: Dict[str, Any]) -> SwiftMessageRouter:
     """
-    Factory function to create router based on config.
+    Create a router instance based on configuration.
     
     Args:
-        config: Model configuration
+        config: Model configuration dictionary
         
     Returns:
-        SwiftMessageRouter instance
+        An instance of a SwiftMessageRouter implementation
     """
     model_type = config.get('model_type', 'random_forest').lower()
     
@@ -524,8 +645,11 @@ def create_router(config: Dict[str, Any]) -> SwiftMessageRouter:
         return NaiveBayesRouter(config)
     elif model_type == 'rule_based':
         return RuleBasedRouter(config)
+    elif model_type == 'bare_bones':
+        return BareBonesRouter(config)
     else:
-        raise ValueError(f"Unknown model type: {model_type}")
+        logger.warning(f"Unknown model type '{model_type}', falling back to bare-bones model")
+        return BareBonesRouter(config)
 
 
 def load_router(filepath: str) -> SwiftMessageRouter:
