@@ -2,8 +2,8 @@
 
 # Stop the PostgreSQL Docker container for SWIFT testing
 
-# Change to the docker directory
-cd "$(dirname "$0")"
+# Get the root directory of the project
+ROOT_DIR="$(dirname "$(dirname "$(dirname "$0")")")"
 
 # Check if Docker is running
 if ! docker info > /dev/null 2>&1; then
@@ -13,7 +13,7 @@ fi
 
 # Stop the containers
 echo "Stopping PostgreSQL container..."
-docker-compose down
+docker-compose -f "${ROOT_DIR}/docker/docker-compose.yml" down
 
 echo "PostgreSQL container stopped."
 echo ""

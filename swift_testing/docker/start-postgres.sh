@@ -2,8 +2,8 @@
 
 # Start the PostgreSQL Docker container for SWIFT testing
 
-# Change to the docker directory
-cd "$(dirname "$0")"
+# Get the root directory of the project
+ROOT_DIR="$(dirname "$(dirname "$(dirname "$0")")")"
 
 # Check if Docker is running
 if ! docker info > /dev/null 2>&1; then
@@ -14,14 +14,14 @@ fi
 
 # Start the containers
 echo "Starting PostgreSQL container for SWIFT testing..."
-docker-compose up -d
+docker-compose -f "${ROOT_DIR}/docker/docker-compose.yml" up -d
 
 # Wait for container to be healthy
 echo "Waiting for PostgreSQL to be ready..."
 timeout=60
 start_time=$(date +%s)
 while true; do
-    if docker-compose ps | grep -q "healthy"; then
+    if docker-compose -f "${ROOT_DIR}/docker/docker-compose.yml" ps | grep -q "healthy"; then
         echo "PostgreSQL is ready!"
         break
     fi
@@ -31,7 +31,7 @@ while true; do
     
     if [ $elapsed -ge $timeout ]; then
         echo "Error: PostgreSQL container did not become healthy within $timeout seconds"
-        echo "Check docker logs with: docker-compose logs postgres"
+        echo "Check docker logs with: docker-compose -f \"${ROOT_DIR}/docker/docker-compose.yml\" logs postgres"
         exit 1
     fi
     
