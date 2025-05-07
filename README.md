@@ -1,26 +1,41 @@
-# SWIFT Message Testing Framework
+# 🚀 SWIFT Message Testing Framework
 
-A framework for testing SWIFT message generation, routing, and processing.
+[![Python 3.8+](https://img.shields.io/badge/Python-3.8+-blue.svg)](https://www.python.org/downloads/)
+[![Docker](https://img.shields.io/badge/Docker-Required-blue.svg)](https://www.docker.com/)
+[![PostgreSQL](https://img.shields.io/badge/PostgreSQL-14-blue.svg)](https://www.postgresql.org/)
 
-## Features
+A powerful framework for testing SWIFT message generation, routing, and processing in financial systems.
 
-- Generate SWIFT MT messages based on templates
-- Test message routing logic
-- Validate message formatting
-- Docker-based PostgreSQL database for storing message templates and test data
-- Customizable model interface for implementing your own message processing logic
+## 📋 Table of Contents
 
-## Prerequisites
+- [Features](#-features)
+- [Prerequisites](#-prerequisites)
+- [Initial Setup](#-initial-setup)
+- [Quick Setup](#-quick-setup)
+- [Manual Setup](#-manual-setup)
+- [Working with the Framework](#-working-with-the-framework)
+- [Troubleshooting](#-troubleshooting)
+- [Creating Custom Models](#-creating-custom-models)
+- [Project Structure](#-project-structure)
 
-- Python 3.8+ installed
-- Docker installed (for easy database setup)
-- Git (to clone the repository)
+## ✨ Features
 
-# SWIFT Testing Framework Quick Start
+- 📄 Generate realistic SWIFT MT messages based on templates
+- 🧠 Test message routing logic with ML models
+- ✓ Validate message formatting against standards
+- 🗄️ Docker-based PostgreSQL database for storing templates and test data
+- 🔌 Customizable model interface for implementing your own processing logic
+- 📊 Analysis tools to evaluate model performance
 
-This guide provides the simplest way to get started with the SWIFT Testing Framework.
+## 💻 Prerequisites
 
-## Setup Steps
+- **Python 3.8+** installed
+- **Docker** installed (for easy database setup)
+- **Git** (to clone the repository)
+
+## 🔰 Initial Setup
+
+Before using either the quick or manual setup method, complete these initial steps:
 
 ### 1. Clone the Repository
 
@@ -49,41 +64,65 @@ source venv/bin/activate
 pip install -r swift_testing/requirements.txt
 ```
 
-### 4. Verify Configuration
+### 4. Configure Database Password
 
-The default configuration in `config/config.yaml` is already set up to work with the Docker database. However, you should check it to make sure paths are correct for your environment.
-Please also add your database password to this line:
-      POSTGRES_PASSWORD: "YOUR_PASSWORD" 
-in docker/docker-compose.yml
+The default configuration in `config/config.yaml` is already set up to work with the Docker database. However, you need to set the database password before proceeding:
 
-### 5. Start the PostgreSQL Database with Docker
+> ⚠️ **Important**: Update the database password in `docker/docker-compose.yml`:
+> ```yaml
+> POSTGRES_PASSWORD: "your_secure_password"  # Use a strong, secure password here
+> ```
+> 
+> Make sure to use the same password in `config/config.yaml` for the database connection.
 
-The simplest way to set up the database is using the provided Docker container:
+## 🚀 Quick Setup
+
+After completing the initial setup, the fastest way to set up the entire framework is to use the provided setup script:
+
+```bash
+# Make sure the script is executable
+chmod +x setup.sh
+
+# Run the setup script
+./setup.sh
+```
+
+### What the setup script does:
+
+- 🐳 Starts the PostgreSQL Docker container
+- ⏱️ Waits for the database to be ready
+- 📁 Creates all necessary directories for the project
+- 🗄️ Sets up database tables
+- 📝 Populates message templates
+- 🔄 Loads variator data for message generation
+
+After running this script, your environment will be fully configured and ready to use. You can then generate messages and run tests as described in the [Working with the Framework](#-working-with-the-framework) section.
+
+## 🧩 Manual Setup
+
+If you prefer to set up each component manually after the initial setup, follow these steps:
+
+### 1. Configure the Database
+
+The default configuration in `config/config.yaml` is already set up to work with the Docker database. Check the configuration and update paths as needed.
+
+### 2. Start the PostgreSQL Database
 
 ```bash
 # Start PostgreSQL
 docker-compose -f docker/docker-compose.yml up -d
 ```
 
-This will:
-- Start a PostgreSQL container
-- Make it available on port 5433
+This will start a PostgreSQL container and make it available on port 5433.
 
-### 6. Verify Configuration
-
-The default configuration in `config/config.yaml` is already set up to work with the Docker database. However, you should check it to make sure paths are correct for your environment. You can copy config.yaml.example file and put there your confuguration for database and save it as config.yaml
-Please also add your database password to this line:
-      POSTGRES_PASSWORD: "YOUR_PASSWORD" 
-in docker/docker-compose.yml
-
-### 7. Initialize the Database
+### 3. Initialize the Database
 
 ```bash
 # Set up database tables
 python3 swift_testing/src/database/setup_db.py --config config/config.yaml
 ```
 
-### 8. Populate Templates and Variator Data
+### 4. Populate Templates and Variator Data
 
 ```bash
 # Load templates
@@ -93,14 +132,25 @@ python3 swift_testing/populate_templates.py --config config/config.yaml
 python3 swift_testing/populate_variator_data.py --config config/config.yaml
 ```
 
-### 9. Generate Test Messages
+## 🔧 Working with the Framework
+
+Once you've completed the setup (either using the script or manually), you can:
+
+### Generate Test Messages
 
 ```bash
 # Generate SWIFT messages using templates
 python3 generate_swift_messages.py --config config/config.yaml --count 10 --type MT103
+
+# Generate SWIFT messages using AI-based generation
+python3 generate_swift_messages.py --config config/config.yaml --count 5 --type MT103 --ai
 ```
 
-### 10. Run Tests and Route Messages
+The framework supports two methods of message generation:
+- **Template-based**: Uses predefined templates with variator data (default)
+- **AI-based**: Uses artificial intelligence to create more diverse messages (use the `--ai` flag)
+
+### Run Tests and Route Messages
 
 ```bash
 # Test the routing model
@@ -110,7 +160,7 @@ python3 swift_testing/src/run_test.py --config config/config.yaml --name "Initia
 python3 swift_testing/route_messages.py --config config/config.yaml --message "{1:F01BANKXXXXXYYY}{2:O1030919111026BANKZZZZ}{4::20:REF12345678:32A:091026EUR12500,00:50K:/123456789:ORDERING CUSTOMER:71A:SHA-}"
 ```
 
-## Troubleshooting
+## ❓ Troubleshooting
 
 ### Database Connection Issues
 
@@ -121,11 +171,25 @@ python3 swift_testing/route_messages.py --config config/config.yaml --message "{
    docker stop swift_testing_postgres
    docker-compose -f docker/docker-compose.yml up -d
    ```
-4.  If you see an error like this:
+
+### Port Conflict Issues
+
+If you see an error like this:
 ```
 Error response from daemon: Ports are not available: exposing port TCP 0.0.0.0:5433 -> 127.0.0.1:0: listen tcp 0.0.0.0:5433: bind: address already in use
 ```
-This means port 5433 is already in use by another process. To fix this either change the port in the docker-compose.yml file change to use a different port or find and stop the process using port 5433
+
+This means port 5433 is already in use by another process. To fix this:
+
+1. Either change the port in the docker-compose.yml file (change "5433:5432" to use a different port like "5434:5432")
+2. Or find and stop the process using port 5433:
+   ```bash
+   # Find the process using port 5433
+   lsof -i :5433
+   
+   # Kill the process using its PID
+   kill <PID>
+   ```
 
 ### Import Errors
 
@@ -142,15 +206,7 @@ For model training and routing, make sure:
 2. Your model directory exists (`mkdir -p models`)
 3. You have the necessary machine learning dependencies installed
 
-## Next Steps
-
-1. **Explore the Bare Bones Router**: Check out the implementation in `swift_testing/models/custom_model.py` and extend it
-2. **Customize Templates**: Add your own SWIFT message templates in the templates directory
-3. **Configure for Production**: Adjust database settings for your production environment
-
-See the full documentation in the `swift_testing/docs` directory for more advanced usage. 
-
-## Creating Custom Models
+## 🔮 Creating Custom Models
 
 To create a custom model for processing SWIFT messages:
 
@@ -160,7 +216,7 @@ To create a custom model for processing SWIFT messages:
 
 See `swift_testing/models/custom_model.py` for a template implementation and examples.
 
-## Model Structure
+### Model Structure
 
 The repository already includes a complete model setup for your use:
 
@@ -174,7 +230,7 @@ If you create your own model, you can either:
 - Replace the existing model file at `models/model_v1.0.0.pkl`
 - Create a new model file and update the path in the config.yaml file
 
-## Project Structure
+## 📁 Project Structure
 
 ```
 .
@@ -197,3 +253,9 @@ If you create your own model, you can either:
     │   └── run_test.py             - Test runner script
     └── tests/                      - Unit tests
 ```
+
+---
+
+## 📚 Documentation
+
+For more advanced usage and detailed documentation, refer to the files in the `swift_testing/docs` directory.

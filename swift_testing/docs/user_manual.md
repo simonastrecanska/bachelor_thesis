@@ -8,14 +8,16 @@
 4. [Installation](#installation)
 5. [Configuration](#configuration)
 6. [Workflow Overview](#workflow-overview)
-7. [Database Setup](#database-setup)
-8. [Template Management](#template-management)
-9. [Variator Data](#variator-data)
-10. [Message Generation](#message-generation)
-11. [Jupyter Notebooks](#jupyter-notebooks)
-12. [Running Tests](#running-tests)
-13. [Routing Messages](#routing-messages)
-14. [Troubleshooting](#troubleshooting)
+7. [One-Command Setup](#one-command-setup)
+8. [Manual Setup](#manual-setup)
+9. [Database Setup](#database-setup)
+10. [Template Management](#template-management)
+11. [Variator Data](#variator-data)
+12. [Message Generation](#message-generation)
+13. [Jupyter Notebooks](#jupyter-notebooks)
+14. [Running Tests](#running-tests)
+15. [Routing Messages](#routing-messages)
+16. [Troubleshooting](#troubleshooting)
 
 ## Introduction
 
@@ -72,7 +74,6 @@ SWIFT messages (like MT103, MT202, etc.) follow strict formats. This framework p
    pip install -r swift_testing/requirements.txt
    ```
 
-
 ## Configuration
 
 The framework uses a YAML configuration file to specify settings. The default is located at `config/config.yaml` in the project root.
@@ -80,17 +81,20 @@ The framework uses a YAML configuration file to specify settings. The default is
 ### Required Configuration Sections
 
 ```yaml
-# Database configuration
+# Database Settings
 database:
-  # Docker PostgreSQL connection
-  connection_string: "postgresql://postgres:swiftpassword@host.docker.internal:5433/swift_testing"
-  # OR individual parameters:
-  # host: host.docker.internal  # Use this for Docker on Mac/Windows
-  # port: 5433                  # PostgreSQL port in Docker
-  # dbname: swift_testing
-  # username: postgres
-  # password: swiftpassword
-  # sslmode: prefer
+  # Docker PostgreSQL connection (default)
+  connection_string: "postgresql://postgres:your_secure_password@localhost:5433/swift_testing"
+  
+  # Optional: Override individual connection parameters
+  host: "localhost"
+  port: 5433
+  username: "postgres"
+  password: "your_secure_password"  # Use a strong, secure password here
+  dbname: "swift_testing"
+  
+  # Database behavior settings
+  add_sample_data: true  # Whether to add sample data when setting up database
 
 # Message generation settings
 message_generation:
@@ -146,17 +150,42 @@ The testing framework workflow consists of these sequential steps:
 
 Each step is explained in detail in the following sections.
 
-## How to Run the Project (Usage)
+## One-Command Setup
+
+The fastest way to set up the entire framework is to use the provided setup script:
+
+```bash
+# Make sure the script is executable
+chmod +x setup.sh
+
+# Run the setup script
+./setup.sh
+```
+
+This script automates the entire setup process by performing these actions:
+- Starts the PostgreSQL Docker container
+- Waits for the database to be ready
+- Creates all necessary directories for the project
+- Sets up database tables
+- Populates message templates
+- Loads variator data for message generation
+
+After running this script, your environment will be fully configured and ready to use. You can directly proceed to generating messages and running tests.
+
+## Manual Setup
+
+If you prefer to perform the setup manually, follow these steps:
 
 ### 1. Start the PostgreSQL Docker Container
 
 Before setting up the database, you need to start the PostgreSQL Docker container:
 
 ```bash
-./start-postgres.sh
+# Make sure Docker is running
+docker-compose -f docker/docker-compose.yml up -d
 ```
 
-This script starts a Docker container with PostgreSQL configured for the SWIFT testing framework.
+This command starts a Docker container with PostgreSQL configured for the SWIFT testing framework.
 
 ### 2. Set Up the Database
 
@@ -220,32 +249,12 @@ Variator data is used to introduce randomness into the templates when generating
 
 > **Note:** Steps 3 and 4 are optional because the framework might come with some default templates and data pre-defined (especially if `add_sample_data` is enabled in the config). However, running them ensures your database is populated with the latest templates and variation data. If you skip them, ensure that your database has the necessary content to generate messages (otherwise, message generation might create empty or trivial messages).
 
-### 5. Generate SWIFT Messages
-
-Now the real action – generating messages! Using the templates and variator data stored in the database, you can create any number of SWIFT messages.
-
-* **What this does:** Takes a random or specified template from the database, applies random variations (like changing amounts, dates, names, etc.), and generates new message text. Each generated message is then stored in the `messages` table of the database (and linked to the template it was based on). You can control how many messages to generate and how much randomness to apply.
-* **How to generate messages:**  
-  Run the message generation script with your desired options. For example:
-
-  ```bash
-  python generate_swift_messages.py --config config/config.yaml --count 10 --type MT103 --randomness 0.8
-  ```
-
-  In the above example:
-  * `--count 10` means "generate 10 messages". You can specify any number here.
-  * `--type MT103` tells the generator to use the template of type MT103. (If not specified, the framework might choose templates at random or use a default type. It's good to specify which message type you want to generate. Common types included are MT103, MT202, MT950, etc., corresponding to the loaded templates.)
-  * `--randomness 0.8` sets the variability factor. This is a value between 0.0 and 1.0 that determines how much random variation to introduce. 0.0 would mean no variation (messages come out almost identical to the template), and 1.0 means high variation (as much change as allowed, replacing most fields with random data). The default if not given is typically moderate (around 0.5 to 1.0). Adjust this based on how diverse you want the test messages to be.
-
-  After running this command, the specified number of new messages will be created and saved in the database. The script will likely output a confirmation, for example indicating that messages were successfully generated.
-
-
-### 7. Stopping the PostgreSQL Container
+### 5. Stopping the PostgreSQL Container
 
 When you're done with your work, you can stop the PostgreSQL Docker container:
 
 ```bash
-./stop-postgres.sh
+docker-compose -f docker/docker-compose.yml down
 ```
 
 This will gracefully shut down the PostgreSQL Docker container.
@@ -277,7 +286,7 @@ The first step is to set up the database schema by creating the necessary tables
 
 ```bash
 # Start PostgreSQL Docker container if not already running
-./start-postgres.sh
+docker-compose -f docker/docker-compose.yml up -d
 
 # Create the database tables
 python swift_testing/src/database/setup_db.py --config config/config.yaml
@@ -390,7 +399,7 @@ The notebooks are designed to work with the data generated by the framework. If 
 
 Since the notebooks connect to a PostgreSQL database running in Docker, note the following:
 
-1. Use `host.docker.internal` instead of `localhost` in connection strings on Mac/Windows
+1. Use `localhost` instead of `host.docker.internal` in connection strings
 2. Make sure the port (5433) matches what's configured in your Docker setup
 3. Use the username and password from your configuration
 
@@ -464,15 +473,34 @@ Parameters:
 If you encounter database connection issues:
 1. Make sure the Docker container is running (`docker ps`)
 2. Verify connection parameters in config.yaml:
-   - Host: `host.docker.internal` (Mac/Windows) or actual IP address (Linux)
+   - Host: `localhost` (not host.docker.internal)
    - Port: 5433 (not the default 5432)
    - Username: postgres
-   - Password: swiftpassword
+   - Password: your_secure_password (or whatever you set in docker-compose.yml)
 3. Check if another PostgreSQL instance is running locally and using the same port
 4. Try restarting the Docker container:
    ```bash
-   ./stop-postgres.sh
-   ./start-postgres.sh
+   docker-compose -f docker/docker-compose.yml down
+   docker-compose -f docker/docker-compose.yml up -d
+   ```
+
+### Port Conflict Issues
+
+If you see an error like this:
+```
+Error response from daemon: Ports are not available: exposing port TCP 0.0.0.0:5433 -> 127.0.0.1:0: listen tcp 0.0.0.0:5433: bind: address already in use
+```
+
+This means port 5433 is already in use by another process. To fix this:
+
+1. Either change the port in the docker-compose.yml file (change "5433:5432" to use a different port like "5434:5432")
+2. Or find and stop the process using port 5433:
+   ```bash
+   # Find the process using port 5433
+   lsof -i :5433
+   
+   # Kill the process using its PID
+   kill <PID>
    ```
 
 ### Docker Issues
