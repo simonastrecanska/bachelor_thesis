@@ -21,15 +21,21 @@ except ImportError:
     # pytest is not available, which is fine for non-test execution
     pytestmark = None
 
-from swift_testing.src.config_loader import load_config
-
-from swift_testing.src.database.db_manager import create_database_manager
-
-from swift_testing.src.message_generator.generator import create_message_generator
-
-from swift_testing.src.models.routing_model import create_router, load_router
-
-from swift_testing.src.evaluation.evaluator import create_evaluator
+# Handle imports based on how the module is being used
+try:
+    # Try relative imports first (when run from within the package)
+    from src.config_loader import load_config
+    from src.database.db_manager import create_database_manager
+    from src.message_generator.generator import create_message_generator
+    from src.models.routing_model import create_router, load_router
+    from src.evaluation.evaluator import create_evaluator
+except ImportError:
+    # Fall back to absolute imports (when imported from outside)
+    from swift_testing.src.config_loader import load_config
+    from swift_testing.src.database.db_manager import create_database_manager
+    from swift_testing.src.message_generator.generator import create_message_generator
+    from swift_testing.src.models.routing_model import create_router, load_router
+    from swift_testing.src.evaluation.evaluator import create_evaluator
 
 logging.basicConfig(
     level=logging.INFO,
@@ -384,6 +390,5 @@ def create_testing_framework(config_path: str) -> TestingFramework:
     Returns:
         An instance of TestingFramework.
     """
-    from swift_testing.src.config_loader import load_config
     config = load_config(config_path)
     return TestingFramework(config)
