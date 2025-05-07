@@ -23,15 +23,15 @@ tr:hover { background-color: #f5f5f5; }
 </style>
 </head>
 <body>
-<h1>Test Run Report - 2025-05-07 21:16:48</h1>
+<h1>Test Run Report - 2025-05-07 22:19:26</h1>
 <p><strong>Model Version:</strong> 1.0.0</p>
-<p><strong>Number of Test Cases:</strong> 18</p>
+<p><strong>Number of Test Cases:</strong> 495</p>
 <p><strong>Accuracy:</strong> 100.00%</p>
 <h2>Model Quality Assessment</h2>
 <div class='metric-card'>
 <h3>Overall Quality: <span class='excellent'>EXCELLENT</span></h3>
 <p><strong>Production Readiness:</strong> READY FOR PRODUCTION</p>
-<p><strong>Assessment Confidence:</strong> LOW (limited test data)</p>
+<p><strong>Assessment Confidence:</strong> HIGH</p>
 <h4>Strengths:</h4>
 <ul>
 <li class='strength'>High overall accuracy (100.00%)</li>
@@ -43,7 +43,6 @@ tr:hover { background-color: #f5f5f5; }
 <ul>
 <li class='recommendation'>Deploy model to production environment</li>
 <li class='recommendation'>Implement regular monitoring to ensure continued performance</li>
-<li class='recommendation'>Increase test dataset size for more reliable evaluation</li>
 </ul>
 </div>
 <h2>Additional Metrics and Visualizations</h2>
@@ -60,9 +59,9 @@ tr:hover { background-color: #f5f5f5; }
 <h3>Confusion Matrix</h3>
 <table>
 <tr><th></th><th>Predicted PAYMENTS</th><th>Predicted REPORTING</th><th>Predicted TREASURY</th></tr>
-<tr><td>Actual PAYMENTS</td><td>6</td><td>0</td><td>0</td></tr>
-<tr><td>Actual REPORTING</td><td>0</td><td>6</td><td>0</td></tr>
-<tr><td>Actual TREASURY</td><td>0</td><td>0</td><td>6</td></tr>
+<tr><td>Actual PAYMENTS</td><td>165</td><td>0</td><td>0</td></tr>
+<tr><td>Actual REPORTING</td><td>0</td><td>165</td><td>0</td></tr>
+<tr><td>Actual TREASURY</td><td>0</td><td>0</td><td>165</td></tr>
 </table>
 </div>
 <div class='metric-card'>
@@ -76,14 +75,14 @@ tr:hover { background-color: #f5f5f5; }
 <div class='metric-card'>
 <h3>Confidence Score Distribution</h3>
 <ul>
-<li><strong>PAYMENTS:</strong> Mean confidence = <span class='metric-value'>1.00</span> (σ = 0.01)</li>
-<ul><li>Range: 0.99 - 1.00</li></ul>
-<li><strong>REPORTING:</strong> Mean confidence = <span class='metric-value'>1.00</span> (σ = 0.00)</li>
-<ul><li>Range: 1.00 - 1.00</li></ul>
-<li><strong>TREASURY:</strong> Mean confidence = <span class='metric-value'>0.97</span> (σ = 0.02)</li>
-<ul><li>Range: 0.94 - 1.00</li></ul>
+<li><strong>PAYMENTS:</strong> Mean confidence = <span class='metric-value'>0.99</span> (σ = 0.01)</li>
+<ul><li>Range: 0.85 - 1.00</li></ul>
+<li><strong>REPORTING:</strong> Mean confidence = <span class='metric-value'>1.00</span> (σ = 0.01)</li>
+<ul><li>Range: 0.84 - 1.00</li></ul>
+<li><strong>TREASURY:</strong> Mean confidence = <span class='metric-value'>0.99</span> (σ = 0.02)</li>
+<ul><li>Range: 0.92 - 1.00</li></ul>
 </ul>
-<p>100.0% of predictions have confidence scores above 0.90</p>
+<p>99.6% of predictions have confidence scores above 0.90</p>
 </div>
 </body>
 </html>

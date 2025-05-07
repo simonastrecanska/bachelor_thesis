@@ -345,7 +345,7 @@ To use the notebooks:
 
 ```bash
 # Launch Jupyter
-jupyter notebook
+jupyter lab
 
 # Navigate to: swift_testing/src/notebooks/
 ```
