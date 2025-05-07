@@ -108,6 +108,20 @@ To create a custom model for processing SWIFT messages:
 
 See `swift_testing/models/custom_model.py` for a template implementation and examples.
 
+## Model Structure
+
+The repository already includes a complete model setup for your use:
+
+1. **Model Interface**: `swift_testing/models/custom_model.py` - Template class showing how to implement a custom model
+2. **Model Implementation**: Source code that defines message processing logic is in `swift_testing/src/models/`
+3. **Pre-trained Model**: A working serialized model file (`model_v1.0.0.pkl`) is available in the root `models/` directory
+
+The config.yaml references the pre-trained model with the path `models/model_v1.0.0.pkl`. This path is relative to the project root.
+
+If you create your own model, you can either:
+- Replace the existing model file at `models/model_v1.0.0.pkl`
+- Create a new model file and update the path in the config.yaml file
+
 ## Project Structure
 
 ```
@@ -115,11 +129,12 @@ See `swift_testing/models/custom_model.py` for a template implementation and exa
 ├── config/                    - Configuration files
 ├── docker/                    - Docker configuration
 ├── generate_swift_messages.py - Script to generate messages
-├── models/                    - Model files
+├── models/                    - Trained model files
+│   └── model_v1.0.0.pkl       - Pre-trained model (already included)
 ├── setup.sh                   - One-step setup script
 └── swift_testing/             - Main package
-    ├── models/                - Model implementations
-    │   └── custom_model.py    - Custom model template
+    ├── models/                - Model templates/interfaces
+    │   └── custom_model.py    - Custom model template class
     ├── populate_templates.py  - Template population script
     ├── populate_variator_data.py - Variator data script
     ├── requirements.txt       - Python dependencies
@@ -127,6 +142,7 @@ See `swift_testing/models/custom_model.py` for a template implementation and exa
     ├── src/                   - Source code
     │   ├── database/          - Database modules
     │   ├── message_generator/ - Message generation modules
+    │   └── models/            - Model implementation code
     │   └── run_test.py        - Test runner script
     └── tests/                 - Unit tests
 ```

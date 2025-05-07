@@ -36,6 +36,7 @@ done
 
 # Create necessary directories
 echo "Creating required directories..."
+mkdir -p "$PROJECT_ROOT/models"  # Root models directory for trained model files
 mkdir -p "$PROJECT_ROOT/swift_testing/input"
 mkdir -p "$PROJECT_ROOT/swift_testing/output"
 mkdir -p "$PROJECT_ROOT/swift_testing/logs"
