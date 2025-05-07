@@ -1,25 +1,25 @@
-# SWIFT Message Testing Framework - User Manual
+# 📘 SWIFT Message Testing Framework - User Manual
 
-## Table of Contents
+## 📋 Table of Contents
 
 1. [Introduction](#introduction)
 2. [Project Overview](#project-overview)
 3. [Features](#features)
 4. [Installation](#installation)
 5. [Configuration](#configuration)
-6. [Workflow Overview](#workflow-overview)
-7. [One-Command Setup](#one-command-setup)
-8. [Manual Setup](#manual-setup)
-9. [Database Setup](#database-setup)
-10. [Template Management](#template-management)
-11. [Variator Data](#variator-data)
-12. [Message Generation](#message-generation)
-13. [Jupyter Notebooks](#jupyter-notebooks)
-14. [Running Tests](#running-tests)
-15. [Routing Messages](#routing-messages)
-16. [Troubleshooting](#troubleshooting)
+6. [Framework Commands Reference](#framework-commands-reference)
+7. [Setup Methods](#setup-methods)
+   - [One-Command Setup](#one-command-setup)
+   - [Manual Setup](#manual-setup)
+8. [Working with the Framework](#working-with-the-framework)
+   - [Message Generation](#message-generation)
+   - [Running Tests](#running-tests)
+   - [Routing Messages](#routing-messages)
+9. [Analysis Tools](#analysis-tools)
+   - [Jupyter Notebooks](#jupyter-notebooks)
+10. [Troubleshooting](#troubleshooting)
 
-## Introduction
+## 🚀 Introduction
 
 The SWIFT Message Testing Framework is a tool for testing and evaluating machine learning models used for routing SWIFT financial messages. This framework allows you to:
 
@@ -30,22 +30,27 @@ The SWIFT Message Testing Framework is a tool for testing and evaluating machine
 
 The framework uses a combination of template-based generation with random variations to create realistic test data. It supports multiple routing model types and provides detailed evaluation metrics.
 
-## Project Overview
+## 🔍 Project Overview
 
 SWIFT messages (like MT103, MT202, etc.) follow strict formats. This framework provides an easy way to produce realistic SWIFT message variations and store them for analysis or use in testing. The main goals of the project are:
-* Automated Message Generation: Create many SWIFT messages based on a few example templates, introducing controlled randomness to simulate real-world variations.
-* Database Storage: Store both the original templates and the generated messages in a database for easy retrieval and analysis.
-* Testing Support: Enable users to use these messages to test routing algorithms or machine learning models in a banking context (for example, verifying that a ML model correctly classifies or routes each message).
 
-## Features
-* Database Setup: Automatically create the necessary database tables to store SWIFT message templates, generated messages, and related parameters.
-* Template Management: Import and store SWIFT message templates (sample message formats) in the database. The project includes some common SWIFT message templates (e.g., MT103, MT202, MT950) and allows adding your own.
-* Message Generation: Generate a specified number of new SWIFT messages from the stored templates. You can control how much random variation is applied, so the generated messages are similar to the template but not identical (simulating real messages with different values).
-* Variator Data: Manage supporting data used for introducing variability (for example, lists of names, account numbers, or other fields that can change in the messages). This data can be loaded into the database to enrich the random generation process.
-* Message Inspection: Check the database to see what templates and messages have been stored. The framework provides commands to list or view stored templates and generated messages, helping you verify the content.
-* Extensible for Routing Tests: (Advanced) The framework is built with testing in mind. It includes placeholders for integrating a routing model or evaluation metrics. This means you could, for instance, plug in a machine learning model and use the generated messages to evaluate the model's routing accuracy. (This feature may require additional setup of model parameters in the config file.)
+* **Automated Message Generation**: Create many SWIFT messages based on templates, introducing controlled randomness to simulate real-world variations
+* **Database Storage**: Store both templates and generated messages in a database for easy retrieval and analysis
+* **Testing Support**: Enable users to test routing algorithms or machine learning models in a banking context
 
-## Installation
+## ✨ Features
+
+| Feature | Description |
+|---------|-------------|
+| 🗄️ **Database Setup** | Automatically create the necessary database tables to store templates, messages, and related data |
+| 📝 **Template Management** | Import and store SWIFT message templates in the database (e.g., MT103, MT202, MT950) |
+| 🔄 **Message Generation** | Generate realistic SWIFT messages with controlled random variations |
+| 🧩 **Variator Data** | Manage supporting data used for introducing variability in messages |
+| 🔎 **Message Inspection** | Utilities to examine stored templates and messages |
+| 🧠 **Model Testing** | Evaluate model performance on routing SWIFT messages |
+| 📊 **Analysis Tools** | Interactive notebooks for analyzing test results |
+
+## 💻 Installation
 
 ### Prerequisites
 
@@ -55,46 +60,50 @@ SWIFT messages (like MT103, MT202, etc.) follow strict formats. This framework p
 
 ### Installation Steps
 
-1. **Clone or Download the Repository:**  
-   Clone this repository via Git or download the ZIP and extract it. For example:
-
+1. **Clone the Repository**  
    ```bash
    git clone https://github.com/simonastrecanska/bachelor_thesis.git
    cd bachelor_thesis
    ```
 
-2. **Create and activate a virtual environment (Optional but Recommended):**
+2. **Create and Activate a Virtual Environment**
    ```bash
    python -m venv venv
    source venv/bin/activate  # On Windows, use venv\Scripts\activate
    ```
 
-3. **Install the required dependencies:**  
+3. **Install Dependencies**
    ```bash
    pip install -r swift_testing/requirements.txt
    ```
 
-## Configuration
+4. **Configure Database Password**  
+   Before proceeding, update the database password in:
+   - `docker/docker-compose.yml`: Set your chosen password in the `POSTGRES_PASSWORD` field
+   - `config/config.yaml`: Set the same password in the database connection parameters
+
+## ⚙️ Configuration
 
 The framework uses a YAML configuration file to specify settings. The default is located at `config/config.yaml` in the project root.
 
-### Required Configuration Sections
+<details>
+<summary>📄 View Sample Configuration</summary>
 
 ```yaml
 # Database Settings
 database:
-  # Docker PostgreSQL connection (default)
+  # Docker PostgreSQL connection
   connection_string: "postgresql://postgres:your_secure_password@localhost:5433/swift_testing"
   
-  # Optional: Override individual connection parameters
+  # Optional: Override individual parameters
   host: "localhost"
   port: 5433
   username: "postgres"
-  password: "your_secure_password"  # Use a strong, secure password here
+  password: "your_secure_password"
   dbname: "swift_testing"
   
   # Database behavior settings
-  add_sample_data: true  # Whether to add sample data when setting up database
+  add_sample_data: true
 
 # Message generation settings
 message_generation:
@@ -109,15 +118,7 @@ model:
   version: "1.0.0"
   prediction_threshold: 0.5
   model_type: "random_forest"
-  model_params:
-    n_estimators: 100
-    max_depth: 10
-    random_state: 42
-  feature_extraction:
-    vectorizer: "tfidf"
-    max_features: 1000
-    ngram_range: [1, 3]
-
+  
 # File paths
 paths:
   output_dir: "output"
@@ -129,310 +130,180 @@ evaluation:
   confusion_matrix: true
   output_format: ["json", "csv"]
 ```
+</details>
 
-For SQLite users, you can use a simpler connection string:
-```yaml
-connection_string: "sqlite:///swift_messages.db"
-```
+> 💡 **Alternative Database Options**: For SQLite users, you can use a simpler connection string:
+> ```yaml
+> connection_string: "sqlite:///swift_messages.db"
+> ```
 
-## Workflow Overview
+## 🔧 Framework Commands Reference
 
-The testing framework workflow consists of these sequential steps:
+This section provides a reference for all the key commands used in the framework.
 
-1. Start the PostgreSQL Docker container
-2. Set up the database tables
-3. Add message templates to the database
-4. Add variator data for message generation
-5. Generate test messages using templates and variator data
-6. Run tests that evaluate the routing model
-7. Use the trained model to route new messages
-8. Stop the PostgreSQL Docker container when finished
-
-Each step is explained in detail in the following sections.
-
-## One-Command Setup
-
-The fastest way to set up the entire framework is to use the provided setup script:
+### 🐳 Docker Commands
 
 ```bash
-# Make sure the script is executable
-chmod +x setup.sh
-
-# Run the setup script
-./setup.sh
-```
-
-This script automates the entire setup process by performing these actions:
-- Starts the PostgreSQL Docker container
-- Waits for the database to be ready
-- Creates all necessary directories for the project
-- Sets up database tables
-- Populates message templates
-- Loads variator data for message generation
-
-After running this script, your environment will be fully configured and ready to use. You can directly proceed to generating messages and running tests.
-
-## Manual Setup
-
-If you prefer to perform the setup manually, follow these steps:
-
-### 1. Start the PostgreSQL Docker Container
-
-Before setting up the database, you need to start the PostgreSQL Docker container:
-
-```bash
-# Make sure Docker is running
+# Start PostgreSQL container
 docker-compose -f docker/docker-compose.yml up -d
-```
 
-This command starts a Docker container with PostgreSQL configured for the SWIFT testing framework.
-
-### 2. Set Up the Database
-
-After starting the Docker container, initialize your database with the required tables.
-
-* **What this does:** Creates tables (such as `message_templates`, `messages`, `parameters`, `variator_data`) in the configured database. If those tables already exist, this step will leave them as-is, unless you force a reset.
-* **How to do it:**  
-  Run the database setup script:
-
-  ```bash
-  python swift_testing/src/database/setup_db.py --config config/config.yaml
-  ```
-
-  By default, this will create the tables if they do not exist. If you want to reset the database (i.e., drop existing tables and recreate them from scratch), you can add the `--drop-existing` flag:
-
-  ```bash
-  python swift_testing/src/database/setup_db.py --config config/config.yaml --drop-existing
-  ```
-
-  (Use the drop option with caution, as it will erase any existing data in those tables.)
-
-### 3. Add Message Templates (Optional but Recommended)
-
-Templates are the foundation for generating messages. The framework comes with some default SWIFT message templates (stored in `swift_testing/templates/`). You can load these into the database, and you can also add your own templates if needed.
-
-* **What this does:** Reads SWIFT message template files and stores them in the `message_templates` table of the database. Each template is essentially a prototype message with placeholders or generalized content.
-* **How to add templates:**  
-  Run the template population script:
-
-  ```bash
-  python swift_testing/populate_templates.py --config config/config.yaml
-  ```
-
-  This will load the default templates provided by the project. If you have additional custom templates, you can place them in a directory and use an extra option to load them. For example:
-
-  ```bash
-  python swift_testing/populate_templates.py --config config/config.yaml --templates-dir /path/to/your/templates
-  ```
-
-  Make sure your custom templates are in a similar format as the default ones (SWIFT message text format). By default, if you run the script without specifying `--templates-dir`, it uses the internal `swift_testing/templates` directory.
-
-### 4. Add Variator Data 
-
-Variator data is used to introduce randomness into the templates when generating messages. It might include lists of example names, account numbers, transaction amounts, dates, etc., which the generator can randomly pick from to replace placeholders in templates.
-
-* **What this does:** Populates the `variator_data` table in the database with sample data used for variations. For instance, it might store a list of currencies, names, or other field values.
-* **How to add variator data:**  
-  Run the variator data population script:
-
-  ```bash
-  python swift_testing/populate_variator_data.py --config config/config.yaml
-  ```
-
-  This will insert the default variation data that comes with the project (if any is provided as part of the framework). If you want to clear out existing variation data and start fresh (for example, if you run this twice and want to avoid duplications), you can use the `--clear` flag:
-
-  ```bash
-  python swift_testing/populate_variator_data.py --config config/config.yaml --clear
-  ```
-
-  This will remove all existing entries in the `variator_data` table before inserting new data.
-
-> **Note:** Steps 3 and 4 are optional because the framework might come with some default templates and data pre-defined (especially if `add_sample_data` is enabled in the config). However, running them ensures your database is populated with the latest templates and variation data. If you skip them, ensure that your database has the necessary content to generate messages (otherwise, message generation might create empty or trivial messages).
-
-### 5. Stopping the PostgreSQL Container
-
-When you're done with your work, you can stop the PostgreSQL Docker container:
-
-```bash
+# Stop PostgreSQL container
 docker-compose -f docker/docker-compose.yml down
+
+# Reset database (removes all data)
+docker-compose -f docker/docker-compose.yml down -v
+docker-compose -f docker/docker-compose.yml up -d
 ```
 
-This will gracefully shut down the PostgreSQL Docker container.
-
-## Input and Output Expectations
-
-### Input requirements: 
-At minimum, the framework needs some SWIFT message templates and a working database connection to function. By default, the project provides sample input in the form of template files and variation data:
-
-* **Templates:** Located in `swift_testing/templates/`, these are text files representing standard SWIFT message formats (for example, an MT103 payment instruction format). These serve as input for the generation process. You can add more templates or edit these to suit your needs.
-* **Variator Data:** Defined within the code (and possibly in data files or the config), this includes lists of values that can fill in template placeholders. For example, a list of random names, country codes, currency codes, etc. The default variator data is provided to simulate realistic field values.
-* **User Input via Commands:** When running the tools, you provide input parameters like the number of messages to generate (`--count`), the type of message (`--type`), and randomness level (`--randomness`). These parameters influence how the generation uses the input data.
-
-### Output results: 
-The primary output of the framework is the generated SWIFT messages stored in the database. Here's what to expect after running the generation:
-
-* New records in the `messages` table of your database, each containing the text of a generated SWIFT message (and possibly metadata like an ID, timestamp, or link to the template used).
-* The console will show messages or summaries indicating progress (e.g., confirmation that messages were generated, or output of the `swift-check-db` command summarizing counts).
-* If you enabled logging (by configuring the `logging` section in the config file), a log file (e.g., `swift_testing.log`) will record actions taken, which can be useful for debugging or audit trails.
-* If you use the evaluation or test running features (for advanced users who integrate a model), the output could include evaluation metrics (accuracy, precision, etc.) printed to console or saved to files (CSV/JSON) as configured. By default, if you only stick to generation and storage, you won't need to deal with these.
-
-### How to retrieve and use the output: 
-Once messages are generated and in the database, you can:
-
-
-## Database Setup
-
-The first step is to set up the database schema by creating the necessary tables. Make sure the Docker PostgreSQL container is running first.
+### 🗄️ Database Commands
 
 ```bash
-# Start PostgreSQL Docker container if not already running
-docker-compose -f docker/docker-compose.yml up -d
-
-# Create the database tables
+# Setup database tables
 python swift_testing/src/database/setup_db.py --config config/config.yaml
 
-# If you need to recreate tables, add the --drop-existing flag
+# Reset database tables (caution: deletes all data!)
 python swift_testing/src/database/setup_db.py --config config/config.yaml --drop-existing
-```
 
-This creates the following tables:
-- `templates`: Stores SWIFT message templates
-- `messages`: Stores generated message variations
-- `parameters`: Stores test parameters
-- `expected_results`: Stores expected routing labels
-- `actual_results`: Stores model predictions
-- `variator_data`: Stores data used for field variations
-
-## Template Management
-
-After setting up the database, you need to add SWIFT message templates. Templates are the base patterns used to generate test messages.
-
-```bash
+# Load templates
 python swift_testing/populate_templates.py --config config/config.yaml
-```
 
-This script adds default templates for different SWIFT message types (e.g., Payment, Treasury). You can customize the templates in the `populate_templates.py` script.
-
-## Variator Data
-
-The template variator needs data to create realistic variations of templates. This includes currencies, bank names, reference numbers, etc.
-
-```bash
+# Load variator data
 python swift_testing/populate_variator_data.py --config config/config.yaml
 
+# Clear and reload variator data
 python swift_testing/populate_variator_data.py --config config/config.yaml --clear
 ```
 
-The `populate_variator_data.py` script contains the following categories of data:
-- Currencies
-- Bank prefixes and suffixes
-- Payment types
-- Reference prefixes
-- Names (first and last)
-- Street names and types
-- Cities
-- Company details
-- Account numbers
-- Payment details
-
-## Message Generation
-
-Now you can generate SWIFT messages using the templates and variator data:
+### 📝 Message Generation Commands
 
 ```bash
-# Generate messages using random variations
+# Generate messages using template-based approach
 python generate_swift_messages.py --config config/config.yaml --count 10 --type MT103
 
-# Generate messages using AI-assisted generation
+# Generate messages using AI-based approach
 python generate_swift_messages.py --config config/config.yaml --count 5 --type MT103 --ai --model llama3
 ```
 
-Parameters:
-- `--count`: Number of messages to generate
-- `--type`: Template type to use (e.g., MT103, MT202)
-- `--ai`: Use AI-based generation (optional)
-- `--model`: AI model to use (default: llama3)
-- `--temperature`: Creativity setting for AI generation (default: 0.7)
-
-## Jupyter Notebooks
-
-The framework includes several Jupyter notebooks that provide interactive analysis and visualization capabilities. These notebooks are located in the `swift_testing/src/notebooks` directory.
-
-### Setting Up Jupyter
-
-To use the notebooks, you need to have Jupyter installed, it is in requirements.txt, so if you run that you should have jupyter installed.
-
-Then launch Jupyter from the project root:
-
-```bash
-jupyter notebook
-```
-
-Navigate to the notebooks directory in the Jupyter interface: `swift_testing/src/notebooks/`
-
-### Available Notebooks
-
-The framework includes the following notebooks:
-
-1. **01_Database_Connection_Setup.ipynb**: Sets up and tests the connection to your PostgreSQL database. This should be run first to ensure your database connection is working correctly with Docker.
-
-2. **02_Basic_Analytics.ipynb**: Provides fundamental analysis of SWIFT messages, including message counts, type distributions, and basic statistics.
-
-3. **03_Advanced_Analysis.ipynb**: Offers more sophisticated analysis of message patterns, field usage, and structural properties.
-
-4. **04_Interactive_Dashboard.ipynb**: Creates an interactive dashboard for exploring SWIFT message data with dynamic filters and visualizations.
-
-5. **05_Reporting_and_Automated_Reports.ipynb**: Demonstrates how to generate reports from SWIFT message data and set up scheduled reporting.
-
-### Using the Notebooks
-
-For the notebooks to work properly:
-
-1. Make sure the Docker PostgreSQL container is running
-2. Update the connection information in notebook 01 if needed
-3. Run the notebooks in numerical order 
-4. Execute all cells in each notebook to ensure dependencies are loaded properly
-
-The notebooks are designed to work with the data generated by the framework. If you've already populated your database with templates and generated messages, you'll be able to explore and analyze that data through the notebooks.
-
-### Working with Docker and Notebooks
-
-Since the notebooks connect to a PostgreSQL database running in Docker, note the following:
-
-1. Use `localhost` instead of `host.docker.internal` in connection strings
-2. Make sure the port (5433) matches what's configured in your Docker setup
-3. Use the username and password from your configuration
-
-If you encounter connection issues in the notebooks, refer to the [Troubleshooting](#troubleshooting) section.
-
-## Running Tests
-
-Once you have templates, variator data, and messages, you can run a complete test that includes:
-1. Message generation (if needed)
-2. Model training (if requested)
-3. Model evaluation
+### 🧪 Testing Commands
 
 ```bash
 # Run a complete test
-python swift_testing/src/run_test.py --config config/config.yaml --name "Initial Test" --description "Testing SWIFT message routing accuracy" --messages 100
+python swift_testing/src/run_test.py --config config/config.yaml --name "Test Name" --description "Description" --messages 100
 
-# To train the model before testing
-python swift_testing/src/run_test.py --config config/config.yaml --name "Training Test" --description "Train and test model" --messages 100 --train
-
-# To save results to a JSON file
-python swift_testing/src/run_test.py --config config/config.yaml --name "Saved Results Test" --description "Save test results" --messages 100 --output results.json
+# Train and test
+python swift_testing/src/run_test.py --config config/config.yaml --name "Train Test" --train --messages 100
 ```
 
-Parameters:
-- `--name`: Test name
-- `--description`: Test description
-- `--messages`: Number of messages to use
-- `--train`: Whether to train the model before testing
-- `--output`: File path to save results
+### 🔄 Routing Commands
 
-## Routing Messages
+```bash
+# Route a single message (text)
+python swift_testing/route_messages.py --config config/config.yaml --message "MESSAGE_TEXT" #you need to add real message to the MESSAGE_TEXT
 
-After training a model, you can use it to route new SWIFT messages using the `route_messages.py` script:
+# Route a message by ID
+python swift_testing/route_messages.py --config config/config.yaml --message-id 123
+
+# Route batch of messages
+python swift_testing/route_messages.py --config config/config.yaml --batch --batch-size 50
+```
+
+## 🛠️ Setup Methods
+
+There are two ways to set up the framework: using the one-command setup script or following the manual setup process.
+
+### ⚡ One-Command Setup
+
+The fastest way to set up the entire framework:
+
+```bash
+# Make script executable
+chmod +x setup.sh
+
+# Run setup script
+./setup.sh
+```
+
+This script automates the entire process:
+- ✅ Starts the PostgreSQL Docker container
+- ✅ Creates necessary directories
+- ✅ Sets up database tables
+- ✅ Populates templates and variator data
+
+After running this script, your environment will be fully configured and ready to use.
+
+### 🧩 Manual Setup
+
+If you prefer a step-by-step approach:
+
+1. **Start PostgreSQL Container**
+   ```bash
+   docker-compose -f docker/docker-compose.yml up -d
+   ```
+
+2. **Setup Database Tables**
+   ```bash
+   python swift_testing/src/database/setup_db.py --config config/config.yaml
+   ```
+
+3. **Add Message Templates**
+   ```bash
+   python swift_testing/populate_templates.py --config config/config.yaml
+   ```
+
+4. **Add Variator Data**
+   ```bash
+   python swift_testing/populate_variator_data.py --config config/config.yaml
+   ```
+
+> ℹ️ **Note**: Steps 3 and 4 are optional if `add_sample_data` is enabled in the config, but running them ensures your database has the latest data.
+
+## 📊 Working with the Framework
+
+After setup, you can start using the framework's primary functions.
+
+### 🔄 Message Generation
+
+Generate SWIFT messages using the templates and variator data:
+
+```bash
+# Template-based generation
+python generate_swift_messages.py --config config/config.yaml --count 10 --type MT103
+
+# AI-assisted generation
+python generate_swift_messages.py --config config/config.yaml --count 5 --type MT103 --ai --model llama3
+```
+
+#### Parameters:
+
+| Parameter | Description | Example |
+|-----------|-------------|---------|
+| `--count` | Number of messages to generate | `--count 10` |
+| `--type` | Template type to use | `--type MT103` |
+| `--ai` | Use AI-based generation | `--ai` |
+| `--model` | AI model to use | `--model llama3` |
+| `--temperature` | Creativity setting (0.0-1.0) | `--temperature 0.7` |
+
+### 🧪 Running Tests
+
+Execute complete tests that include message generation, model training, and evaluation:
+
+```bash
+# Basic test
+python swift_testing/src/run_test.py --config config/config.yaml --name "Initial Test" --messages 100
+
+# Test with model training
+python swift_testing/src/run_test.py --config config/config.yaml --name "Training Test" --train --messages 100
+
+# Save results to file
+python swift_testing/src/run_test.py --config config/config.yaml --name "Results Test" --output results.json
+```
+
+### 🧠 Routing Messages
+
+Route SWIFT messages using a trained model:
+
+<details>
+<summary>View Routing Examples</summary>
 
 ```bash
 # Route a single message from text
@@ -453,82 +324,114 @@ python swift_testing/route_messages.py --config config/config.yaml --batch --bat
 
 # Use a specific saved model
 python swift_testing/route_messages.py --config config/config.yaml --batch --model path/to/model.pkl
+```
+</details>
 
-# Save routing results to a file
-python swift_testing/route_messages.py --config config/config.yaml --batch --output results.json
+## 📈 Analysis Tools
+
+The framework provides tools to analyze test results and evaluate model performance.
+
+### 📊 Jupyter Notebooks
+
+A set of interactive notebooks for data analysis and visualization:
+
+1. **01_Database_Connection_Setup.ipynb**: Sets up database connection
+2. **02_Basic_Analytics.ipynb**: Basic statistics and distributions
+3. **03_Advanced_Analysis.ipynb**: In-depth pattern analysis
+4. **04_Interactive_Dashboard.ipynb**: Interactive data exploration
+5. **05_Reporting_and_Automated_Reports.ipynb**: Automated report generation
+
+To use the notebooks:
+
+```bash
+# Launch Jupyter
+jupyter notebook
+
+# Navigate to: swift_testing/src/notebooks/
 ```
 
-Parameters:
-- `--message`: Text of a message to route
-- `--message-id`: ID of a message in the database
-- `--batch`: Route multiple messages from the database
-- `--batch-size`: Number of messages to process in batch mode
-- `--model`: Path to a specific model file
-- `--output`: File to save routing results
+#### Notebook Connection Settings
 
-## Troubleshooting
+When working with notebooks:
+1. Use `localhost` for the database host
+2. Use port `5433` (or your configured port)
+3. Use the same credentials as in your config.yaml
 
-### Database Connection Issues
+## ❓ Troubleshooting
 
-If you encounter database connection issues:
-1. Make sure the Docker container is running (`docker ps`)
-2. Verify connection parameters in config.yaml:
+### 🗄️ Database Connection Issues
+
+<details>
+<summary>View Database Troubleshooting</summary>
+
+1. **Check if Docker is running**
+   ```bash
+   docker ps
+   ```
+
+2. **Verify database connection parameters**
    - Host: `localhost` (not host.docker.internal)
    - Port: 5433 (not the default 5432)
-   - Username: postgres
-   - Password: your_secure_password (or whatever you set in docker-compose.yml)
-3. Check if another PostgreSQL instance is running locally and using the same port
-4. Try restarting the Docker container:
+   - Username: matches POSTGRES_USER in docker-compose.yml
+   - Password: matches POSTGRES_PASSWORD in docker-compose.yml
+
+3. **Restart the container**
    ```bash
    docker-compose -f docker/docker-compose.yml down
    docker-compose -f docker/docker-compose.yml up -d
    ```
 
-### Port Conflict Issues
-
-If you see an error like this:
-```
-Error response from daemon: Ports are not available: exposing port TCP 0.0.0.0:5433 -> 127.0.0.1:0: listen tcp 0.0.0.0:5433: bind: address already in use
-```
-
-This means port 5433 is already in use by another process. To fix this:
-
-1. Either change the port in the docker-compose.yml file (change "5433:5432" to use a different port like "5434:5432")
-2. Or find and stop the process using port 5433:
+4. **Check container logs**
    ```bash
-   # Find the process using port 5433
+   docker logs swift_testing_postgres
+   ```
+
+5. **Test database connection**
+   ```bash
+   docker exec swift_testing_postgres pg_isready -U postgres
+   ```
+</details>
+
+### 🔌 Port Conflict Issues
+
+If you see "address already in use" error:
+
+1. **Change the port** in docker-compose.yml (e.g., from "5433:5432" to "5434:5432")
+
+2. **Find and stop the process using the port**
+   ```bash
    lsof -i :5433
-   
-   # Kill the process using its PID
    kill <PID>
    ```
 
-### Docker Issues
+### 🐳 Docker Issues
 
-If you have problems with the Docker container:
-1. Ensure Docker is installed and running
-2. Check container logs: `docker logs swift_testing_postgres`
-3. Make sure ports aren't already in use: `lsof -i :5433`
-4. Verify Docker has sufficient resources allocated
+<details>
+<summary>View Docker Troubleshooting</summary>
 
-### Missing Configuration Elements
+1. **Ensure Docker is installed and running**
+2. **Check container logs**
+   ```bash
+   docker logs swift_testing_postgres
+   ```
+3. **Check for port conflicts**
+   ```bash
+   lsof -i :5433
+   ```
+4. **Reset everything**
+   ```bash
+   docker-compose -f docker/docker-compose.yml down -v
+   docker-compose -f docker/docker-compose.yml up -d
+   ```
+</details>
 
-If you see errors about missing configuration:
-1. Ensure all required sections are present in your config.yaml
-2. Check that the paths in your configuration exist
+### 📝 General Troubleshooting Tips
 
-### Training Errors
+- Always run commands from the project root directory
+- Ensure config.yaml is properly configured
+- Check that all required directories exist
+- Verify that the database container is running before using other commands
 
-If model training fails:
-1. Make sure you have enough messages in the database
-2. Check that your message content is valid
-3. Verify the model configuration in your config file
+---
 
-### Evaluation Errors
-
-If evaluation produces errors:
-1. Check that your messages have expected routing labels
-2. Make sure your model produces valid predictions
-3. Verify that prediction types match expected label types 
-
-Happy testing!
+Happy testing! 🎉

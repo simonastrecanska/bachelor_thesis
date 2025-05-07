@@ -61,14 +61,14 @@ source venv/bin/activate
 
 ```bash
 # Install required packages
-pip install -r swift_testing/requirements.txt
-```
+   pip install -r swift_testing/requirements.txt
+   ```
 
 ### 4. Configure Database Password
 
 The default configuration in `config/config.yaml` is already set up to work with the Docker database. However, you need to set the database password before proceeding:
 
-> ⚠️ **Important**: Update the database password in `docker/docker-compose.yml`:
+> ⚠️ **Important**: Update the database password in `docker/docker-compose.yaml`:
 > ```yaml
 > POSTGRES_PASSWORD: "your_secure_password"  # Use a strong, secure password here
 > ```
@@ -168,8 +168,47 @@ python3 swift_testing/route_messages.py --config config/config.yaml --message "{
 2. Verify the database connection in `config/config.yaml`
 3. Try stopping and restarting the PostgreSQL container:
    ```bash
-   docker stop swift_testing_postgres
+   docker-compose -f docker/docker-compose.yml down
    docker-compose -f docker/docker-compose.yml up -d
+   ```
+
+### Database Setup Failed During Installation
+
+If the setup.sh script fails with database errors:
+
+1. **Check container creation**: Sometimes Docker assigns different names to containers than expected
+   ```bash
+   # See what containers are actually running
+   docker ps
+   ```
+
+2. **Check Docker logs for the PostgreSQL container**:
+   ```bash
+   # Replace with your actual container name/ID from docker ps
+   docker logs swift_testing_postgres
+   ```
+
+3. **Database already exists error**: If you see errors about the database or tables already existing:
+   ```bash
+   # Force a complete reset of the database
+   docker-compose -f docker/docker-compose.yml down -v  # Removes volumes!
+   docker-compose -f docker/docker-compose.yml up -d
+   ```
+
+4. **Container starts but database isn't accessible**: Check that the PostgreSQL service is actually running:
+   ```bash
+   # Run this AFTER container is started
+   docker exec swift_testing_postgres pg_isready -U postgres
+   ```
+
+5. **Fix incorrect database configuration**: Update your config/config.yaml file to match what's in docker-compose.yml:
+   ```yaml
+   database:
+     host: "localhost"  # Use this on Mac/Windows, not host.docker.internal
+     port: 5433  # Must match the external port in docker-compose.yml
+     username: "postgres"  # Must match POSTGRES_USER
+     password: "your_secure_password"  # Must match POSTGRES_PASSWORD
+     dbname: "swift_testing"  # Must match POSTGRES_DB
    ```
 
 ### Port Conflict Issues

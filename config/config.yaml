@@ -14,11 +14,12 @@ database:
   connection_string: "postgresql://postgres:YOUR_PASSWORD@localhost:5433/swift_testing"
   
   # Optional: Override individual connection parameters
-  host: "localhost"
-  port: 5433
-  username: "postgres"
-  password: "YOUR_PASSWORD"  # Change this to your actual password
-  dbname: "swift_testing"
+  # IMPORTANT: These must match what's in docker/docker-compose.yml
+  host: "localhost"  # Use "localhost", not "host.docker.internal"
+  port: 5433  # Must match the port in docker-compose.yml (5433:5432)
+  username: "postgres"  # Must match POSTGRES_USER in docker-compose.yml
+  password: "YOUR_PASSWORD"  # Must match POSTGRES_PASSWORD in docker-compose.yml
+  dbname: "swift_testing"  # Must match POSTGRES_DB in docker-compose.yml
   
   # Database behavior settings
   add_sample_data: true  # Whether to add sample data when setting up database
@@ -43,6 +44,17 @@ message_generation:
   perturbation_degree: 0.2
   field_patterns: {}
   substitutions: {}
+  # Number of messages to generate by default
+  num_messages: 100
+  
+  # Strategy for introducing variations in templates
+  # Options: "random", "targeted", "conservative"
+  variation_strategy: "random"
+  
+  # Configuration for the template variator
+  variator_config:
+    perturbation_factor: 0.5  # How much to vary from the template (0.0-1.0)
+    field_variation_probability: 0.7  # Probability of varying each field (0.0-1.0)
 
 # Model Settings
 # -------------
