@@ -1,0 +1,89 @@
+<html>
+<head>
+<title>Test Run Report</title>
+<style>
+body { font-family: Arial, sans-serif; margin: 40px; line-height: 1.6; }
+h1 { color: #2c3e50; border-bottom: 1px solid #eee; padding-bottom: 10px; }
+h2 { color: #3498db; margin-top: 30px; }
+h3 { color: #2980b9; }
+table { border-collapse: collapse; width: 100%; margin: 20px 0; }
+th, td { padding: 12px; text-align: left; border: 1px solid #ddd; }
+th { background-color: #f2f2f2; }
+tr:hover { background-color: #f5f5f5; }
+.metric-card { background: #f8f9fa; border-radius: 5px; padding: 15px; margin-bottom: 20px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+.metric-value { font-size: 1.2em; font-weight: bold; color: #3498db; }
+.excellent { color: #27ae60; font-weight: bold; }
+.good { color: #2ecc71; font-weight: bold; }
+.acceptable { color: #f39c12; font-weight: bold; }
+.needs-improvement { color: #e67e22; font-weight: bold; }
+.poor { color: #e74c3c; font-weight: bold; }
+.strength { color: #27ae60; }
+.weakness { color: #e74c3c; }
+.recommendation { color: #3498db; }
+</style>
+</head>
+<body>
+<h1>Test Run Report - 2025-05-07 21:16:48</h1>
+<p><strong>Model Version:</strong> 1.0.0</p>
+<p><strong>Number of Test Cases:</strong> 18</p>
+<p><strong>Accuracy:</strong> 100.00%</p>
+<h2>Model Quality Assessment</h2>
+<div class='metric-card'>
+<h3>Overall Quality: <span class='excellent'>EXCELLENT</span></h3>
+<p><strong>Production Readiness:</strong> READY FOR PRODUCTION</p>
+<p><strong>Assessment Confidence:</strong> LOW (limited test data)</p>
+<h4>Strengths:</h4>
+<ul>
+<li class='strength'>High overall accuracy (100.00%)</li>
+<li class='strength'>Strong performance across all classes</li>
+<li class='strength'>Excellent correlation between predictions and ground truth</li>
+<li class='strength'>High confidence in predictions</li>
+</ul>
+<h4>Recommendations:</h4>
+<ul>
+<li class='recommendation'>Deploy model to production environment</li>
+<li class='recommendation'>Implement regular monitoring to ensure continued performance</li>
+<li class='recommendation'>Increase test dataset size for more reliable evaluation</li>
+</ul>
+</div>
+<h2>Additional Metrics and Visualizations</h2>
+<div class='metric-card'>
+<h3>Classification Report</h3>
+<table>
+<tr><th>Label</th><th>Precision</th><th>Recall</th><th>F1-Score</th><th>Support</th></tr>
+<tr><td>PAYMENTS</td><td>1.00</td><td>1.00</td><td>1.00</td><td>33</td></tr>
+<tr><td>REPORTING</td><td>1.00</td><td>1.00</td><td>1.00</td><td>33</td></tr>
+<tr><td>TREASURY</td><td>1.00</td><td>1.00</td><td>1.00</td><td>33</td></tr>
+</table>
+</div>
+<div class='metric-card'>
+<h3>Confusion Matrix</h3>
+<table>
+<tr><th></th><th>Predicted PAYMENTS</th><th>Predicted REPORTING</th><th>Predicted TREASURY</th></tr>
+<tr><td>Actual PAYMENTS</td><td>6</td><td>0</td><td>0</td></tr>
+<tr><td>Actual REPORTING</td><td>0</td><td>6</td><td>0</td></tr>
+<tr><td>Actual TREASURY</td><td>0</td><td>0</td><td>6</td></tr>
+</table>
+</div>
+<div class='metric-card'>
+<h3>Advanced Evaluation Metrics</h3>
+<ul>
+<li><strong>Matthews Correlation Coefficient:</strong> <span class='metric-value'>1.00</span></li>
+<li><strong>Cohen's Kappa:</strong> <span class='metric-value'>1.00</span></li>
+<li><strong>Balanced Accuracy:</strong> <span class='metric-value'>1.00</span></li>
+</ul>
+</div>
+<div class='metric-card'>
+<h3>Confidence Score Distribution</h3>
+<ul>
+<li><strong>PAYMENTS:</strong> Mean confidence = <span class='metric-value'>1.00</span> (σ = 0.01)</li>
+<ul><li>Range: 0.99 - 1.00</li></ul>
+<li><strong>REPORTING:</strong> Mean confidence = <span class='metric-value'>1.00</span> (σ = 0.00)</li>
+<ul><li>Range: 1.00 - 1.00</li></ul>
+<li><strong>TREASURY:</strong> Mean confidence = <span class='metric-value'>0.97</span> (σ = 0.02)</li>
+<ul><li>Range: 0.94 - 1.00</li></ul>
+</ul>
+<p>100.0% of predictions have confidence scores above 0.90</p>
+</div>
+</body>
+</html>
