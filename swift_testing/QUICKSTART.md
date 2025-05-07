@@ -30,7 +30,14 @@ source venv/bin/activate
 # venv\Scripts\activate
 ```
 
-### 3. Install Dependencies
+### 3. Verify Configuration
+
+The default configuration in `config/config.yaml` is already set up to work with the Docker database. However, you should check it to make sure paths are correct for your environment. You can copy config.yaml.example file and put there your confuguration for database and save it as config.yaml
+Please also add your database password to this line:
+      POSTGRES_PASSWORD: "YOUR_PASSWORD" 
+in docker-compose.yml
+
+### 4. Install Dependencies
 
 ```bash
 # Install required packages
@@ -52,7 +59,10 @@ This will:
 
 ### 5. Verify Configuration
 
-The default configuration in `config/config.yaml` is already set up to work with the Docker database. However, you should check it to make sure paths are correct for your environment.
+The default configuration in `config/config.yaml` is already set up to work with the Docker database. However, you should check it to make sure paths are correct for your environment. You can copy config.yaml.example file and put there your confuguration for database and save it as config.yaml
+Please also add your database password to this line:
+      POSTGRES_PASSWORD: "YOUR_PASSWORD" 
+in docker-compose.yml
 
 ### 6. Initialize the Database
 
