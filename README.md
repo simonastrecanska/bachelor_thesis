@@ -1,162 +1,134 @@
 # SWIFT Message Testing Framework
 
-This project provides a framework for generating, storing, and testing SWIFT messages. It helps automate the testing of machine learning models used for routing SWIFT messages in banking systems.
+A comprehensive framework for testing SWIFT message generation, routing, and processing.
 
-## Overview
+## Features
 
-The framework allows you to:
-1. Set up a database with sample SWIFT message templates
-2. Generate variations of these templates with configurable randomness 
-3. Store the generated messages in a database
+- Generate SWIFT MT messages based on templates
+- Test message routing logic
+- Validate message formatting
+- Docker-based PostgreSQL database for storing message templates and test data
+- Customizable model interface for implementing your own message processing logic
 
-## Installation
+## Prerequisites
 
-1. Clone this repository
-2. Install Python 3.8 or later
-3. Install the package:
-   ```
-   pip install -e .
-   ```
-   
-   Or install dependencies directly:
-   ```
-   pip install -r swift_testing/requirements.txt
-   ```
-4. Configure your database settings in `swift_testing/config/config.yaml`
+- Python 3.8+ installed
+- Docker installed (for easy database setup)
+- Git (to clone the repository)
 
 ## Quick Start
 
-To get started quickly with a complete setup:
+### One-step Setup (Recommended)
 
 ```bash
-# 1. Set up the database
-python swift_testing/src/database/setup_db.py --config swift_testing/config/config.yaml
+# Make the setup script executable
+chmod +x setup.sh
 
-# 2. Add templates (optional)
-python swift_testing/populate_templates.py --config swift_testing/config/config.yaml
-
-# 3. Add variator data for message generation (optional)
-python swift_testing/populate_variator_data.py --config swift_testing/config/config.yaml
-
-# 4. Generate some messages
-python generate_swift_messages.py --config swift_testing/config/config.yaml --count 5 --randomness 0.8
-
+# Run the setup script
+./setup.sh
 ```
+
+This script will:
+1. Start the PostgreSQL Docker container
+2. Create necessary database tables
+3. Populate templates and variator data
+4. Prepare everything for generating test messages
+
+### Manual Setup
+
+If you prefer to run commands individually:
+
+1. Install dependencies:
+   ```bash
+   pip install -r swift_testing/requirements.txt
+   ```
+
+2. Start the PostgreSQL database:
+   ```bash
+   docker-compose -f docker/docker-compose.yml up -d
+   ```
+
+3. Set up the database tables:
+   ```bash
+   python3 swift_testing/src/database/setup_db.py --config config/config.yaml
+   ```
+
+4. Populate the database:
+   ```bash
+   python3 swift_testing/populate_templates.py --config config/config.yaml
+   python3 swift_testing/populate_variator_data.py --config config/config.yaml
+   ```
 
 ## Usage
 
-### Setting Up the Database
-
-To create the necessary database tables:
-
-```bash
-# Create tables
-python swift_testing/src/database/setup_db.py --config swift_testing/config/config.yaml
-
-# To force drop and recreate tables
-python swift_testing/src/database/setup_db.py --config swift_testing/config/config.yaml --drop-existing
-```
-
-### Adding Templates and Variator Data
-
-To add message templates to the database:
-
-```bash
-# Add default templates
-python swift_testing/populate_templates.py --config swift_testing/config/config.yaml
-
-# To provide additional templates from a directory
-python swift_testing/populate_templates.py --config swift_testing/config/config.yaml --templates-dir /path/to/templates
-```
-
-To populate variator data for message generation:
-
-```bash
-# Add variator data
-python swift_testing/populate_variator_data.py --config swift_testing/config/config.yaml
-
-# To clear existing data before inserting new data
-python swift_testing/populate_variator_data.py --config swift_testing/config/config.yaml --clear
-```
-
-### Checking the Database
-
-To check what templates and messages are in your database:
-
-```bash
-python swift_testing/check_database.py --config swift_testing/config/config.yaml
-```
-
 ### Generating Messages
 
-To generate SWIFT messages from templates:
+Generate SWIFT messages from templates:
 
 ```bash
-python generate_swift_messages.py --config swift_testing/config/config.yaml --count 10 --type MT103 --randomness 0.8
+python3 generate_swift_messages.py --config config/config.yaml --count 10 --type MT103
 ```
 
 Parameters:
 - `--count`: Number of messages to generate
-- `--type`: The template type to use (e.g., MT103, MT202, MT950)
-- `--randomness`: A float (0.0-1.0) that controls the amount of variation
+- `--type`: The template type to use (e.g., MT103, MT202)
+- `--randomness`: Controls the amount of variation (0.0-1.0)
 
-## Database Structure
+### Running Tests
 
-The framework uses the following tables:
+Run a complete test with specified parameters:
 
-1. `message_templates` - Stores SWIFT message templates
-2. `parameters` - Stores test parameters
-3. `messages` - Stores generated messages
-4. `variator_data` - Stores data for template variations
+```bash
+python3 swift_testing/src/run_test.py --config config/config.yaml --name "Test Run" --description "Testing routing" --messages 20
+```
+
+### Testing a Single Message
+
+Test the routing of a specific SWIFT message:
+
+```bash
+python3 swift_testing/route_messages.py --config config/config.yaml --message "{1:F01BANKXXXXXYYY}{2:O1030919111026BANKZZZZ}{4::20:REF12345678:32A:091026EUR12500,00:50K:/123456789:ORDERING CUSTOMER:71A:SHA-}"
+```
 
 ## Configuration
 
-The main configuration file is `swift_testing/config/config.yaml`. It contains settings for:
-- Database connection
-- Message generation parameters
+Configuration is managed through `config/config.yaml`. Key sections include:
+- Database connection settings
+- Model configuration
+- Test parameters
 - Evaluation metrics
+
+## Creating Custom Models
+
+To create a custom model for processing SWIFT messages:
+
+1. Create a new Python module in the `models` directory that inherits from the `CustomModel` class in `swift_testing/models/custom_model.py`
+2. Implement the required abstract methods
+3. Update the configuration to use your custom model
+
+See `swift_testing/models/custom_model.py` for a template implementation and examples.
 
 ## Project Structure
 
 ```
 .
-├── generate_swift_messages.py   - Script to generate messages
-├── view_messages.py            - Script to view messages
-├── swift_testing/
-│   ├── check_database.py       - Script to check database contents
-│   ├── populate_templates.py   - Script to populate templates
-│   ├── populate_variator_data.py - Script to populate variator data
-│   ├── config/
-│   │   └── config.yaml         - Configuration file
-│   ├── src/
-│   │   ├── database/           - Database modules
-│   │   │   ├── db_manager.py   - Database management functions
-│   │   │   ├── models.py       - SQLAlchemy models
-│   │   │   └── setup_db.py     - Database setup script
-│   │   ├── message_generator/  - Message generation modules
-│   │   │   ├── template_variator.py - Template variation engine
-│   │   │   ├── generator.py    - Message generation logic
-│   │   │   └── field_handlers.py - Field-specific handlers
-│   │   ├── evaluation/         - Evaluation modules
-│   │   ├── interface/          - Command-line interface
-│   │   └── models/             - Machine learning models
-│   ├── templates/              - Template files
-│   └── tests/                  - Unit tests
-└── README.md                   - This file
+├── config/                    - Configuration files
+├── docker/                    - Docker configuration
+├── generate_swift_messages.py - Script to generate messages
+├── models/                    - Model files
+├── setup.sh                   - One-step setup script
+└── swift_testing/             - Main package
+    ├── models/                - Model implementations
+    │   └── custom_model.py    - Custom model template
+    ├── populate_templates.py  - Template population script
+    ├── populate_variator_data.py - Variator data script
+    ├── requirements.txt       - Python dependencies
+    ├── route_messages.py      - Message routing script
+    ├── src/                   - Source code
+    │   ├── database/          - Database modules
+    │   ├── message_generator/ - Message generation modules
+    │   └── run_test.py        - Test runner script
+    └── tests/                 - Unit tests
 ```
 
-## Console Scripts
-
-After installation, the following commands will be available:
-
-```
-swift-testing            - Main CLI interface for testing framework
-swift-check-db           - Check database contents
-swift-generate-messages  - Generate SWIFT messages
-swift-populate-templates - Populate message templates
-swift-populate-variator-data - Populate variator data
-```
-
-## License
-
-MIT License 
+For more detailed information, see `swift_testing/QUICKSTART.md`.

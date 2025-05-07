@@ -172,3 +172,11 @@ cython_debug/
 config.py
 .DS_Store
 swift_testing/src/.DS_Store
+
+# Config files with sensitive information
+config/config.yaml
+
+# Virtual environment
+venv/
+env/
+.env

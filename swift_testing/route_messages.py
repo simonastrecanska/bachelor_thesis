@@ -13,8 +13,16 @@ import json
 import sys
 from pathlib import Path
 
-from src.testing_framework import TestingFramework
-from src.config_loader import load_config
+# Add the project root to the Python path for proper imports
+sys.path.insert(0, os.path.abspath(os.path.dirname(__file__)))
+
+try:
+    from swift_testing.src.testing_framework import TestingFramework
+    from swift_testing.src.config_loader import load_config
+except ImportError:
+    # Try relative import if package is not installed
+    from src.testing_framework import TestingFramework
+    from src.config_loader import load_config
 
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
 logger = logging.getLogger(__name__)

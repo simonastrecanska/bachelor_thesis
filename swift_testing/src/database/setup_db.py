@@ -18,12 +18,17 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
+# Add project root to path for direct imports
 current_dir = Path(__file__).resolve().parent
-project_root = current_dir.parent.parent
+src_dir = current_dir.parent
+project_root = src_dir.parent
 sys.path.insert(0, str(project_root))
+sys.path.insert(0, str(src_dir))
 
-from src.config_loader import load_config
-from src.database.db_manager import create_database_manager
+# Direct imports
+from config_loader import load_config
+from database.db_manager import create_database_manager
+
 
 def setup_database(config_path, drop_existing=False):
     """
@@ -42,7 +47,7 @@ def setup_database(config_path, drop_existing=False):
         
         db_config = config.database
         
-        if hasattr(db_config, 'connection_string'):
+        if hasattr(db_config, 'connection_string') and db_config.connection_string:
             db_uri = db_config.connection_string
         else:
             db_uri = f"postgresql://{db_config.username}:{db_config.password}@{db_config.host}:{db_config.port}/{db_config.dbname}"

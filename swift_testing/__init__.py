@@ -1,5 +1,8 @@
 """
 SWIFT Message Testing Framework
 
-Framework for testing SWIFT message classification and routing.
+A comprehensive framework for testing SWIFT message generation, parsing, and routing.
 """
+
+__version__ = "1.0.0"
+__author__ = "Simona Strecanska"

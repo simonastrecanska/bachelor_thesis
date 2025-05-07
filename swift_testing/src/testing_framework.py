@@ -12,7 +12,14 @@ import logging
 import time
 from datetime import datetime
 from typing import Dict, Any, List
-import pytest
+
+# Make pytest import optional since it's only needed for testing
+try:
+    import pytest
+    pytestmark = pytest.mark.skip("Not a test class")
+except ImportError:
+    # pytest is not available, which is fine for non-test execution
+    pytestmark = None
 
 from src.config_loader import load_config
 
@@ -30,7 +37,9 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
-pytestmark = pytest.mark.skip("Not a test class")
+# Only define pytestmark if pytest is available
+if 'pytest' in locals():
+    pytestmark = pytest.mark.skip("Not a test class")
 
 class TestingFramework:
     """
@@ -60,23 +69,38 @@ class TestingFramework:
         try:
             db_config = self.config.database
             
-            db_uri = f"postgresql://{db_config.username}:{db_config.password}@{db_config.host}:{db_config.port}/{db_config.dbname}"
-            
-            if hasattr(db_config, 'sslmode'):
-                db_uri += f"?sslmode={db_config.sslmode}"
+            # Use connection_string directly if available
+            if hasattr(db_config, 'connection_string') and db_config.connection_string:
+                db_uri = db_config.connection_string
+            else:
+                # Otherwise build from individual components
+                db_uri = f"postgresql://{db_config.username}:{db_config.password}@{db_config.host}:{db_config.port}/{db_config.dbname}"
                 
+                if hasattr(db_config, 'sslmode'):
+                    db_uri += f"?sslmode={db_config.sslmode}"
+                    
             logger.info(f"Using database URI: {db_uri}")
             
             self.db_manager = create_database_manager(db_uri)
             logger.info("Database connection established.")
 
-            message_gen_config = self.config.message_generation.dict()
+            message_gen_config = self.config.message_generation
+            # Handle both dict and object formats
+            if hasattr(message_gen_config, 'dict'):
+                message_gen_config = message_gen_config.dict()
             message_gen_config['database_uri'] = db_uri
             self.message_generator = create_message_generator(message_gen_config)
             logger.info("Message generator initialized.")
 
-            model_config = self.config.model.dict()
+            model_config = self.config.model
+            # Handle both dict and object formats
+            if hasattr(model_config, 'dict'):
+                model_config = model_config.dict()
+            
             model_dir = self.config.paths.model_dir
+            # Create model directory if it doesn't exist
+            os.makedirs(model_dir, exist_ok=True)
+            
             model_path = os.path.join(model_dir, f"model_v{model_config.get('version')}.pkl")
             if os.path.exists(model_path):
                 self.router = load_router(model_path)
@@ -85,7 +109,10 @@ class TestingFramework:
                 self.router = create_router(model_config)
                 logger.info("Created new routing model.")
 
-            evaluation_config = self.config.evaluation.dict()
+            evaluation_config = self.config.evaluation
+            # Handle both dict and object formats
+            if hasattr(evaluation_config, 'dict'):
+                evaluation_config = evaluation_config.dict()
             self.evaluator = create_evaluator(evaluation_config)
             logger.info("Evaluator initialized.")
         except Exception as e:
