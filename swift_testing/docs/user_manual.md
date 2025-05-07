@@ -42,8 +42,6 @@ SWIFT messages (like MT103, MT202, etc.) follow strict formats. This framework p
 * Message Inspection: Check the database to see what templates and messages have been stored. The framework provides commands to list or view stored templates and generated messages, helping you verify the content.
 * Extensible for Routing Tests: (Advanced) The framework is built with testing in mind. It includes placeholders for integrating a routing model or evaluation metrics. This means you could, for instance, plug in a machine learning model and use the generated messages to evaluate the model's routing accuracy. (This feature may require additional setup of model parameters in the config file.)
 
-> **Note:** You do not need to be familiar with the internal code to use these features. They are accessible via simple command-line tools after installation.
-
 ## Installation
 
 ### Prerequisites
