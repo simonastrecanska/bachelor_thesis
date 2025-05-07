@@ -343,7 +343,7 @@ Now you can generate SWIFT messages using the templates and variator data:
 # Generate messages using random variations
 python generate_swift_messages.py --config config/config.yaml --count 10 --type MT103
 
-# Generate messages using AI-assisted generation (if available)
+# Generate messages using AI-assisted generation
 python generate_swift_messages.py --config config/config.yaml --count 5 --type MT103 --ai --model llama3
 ```
 

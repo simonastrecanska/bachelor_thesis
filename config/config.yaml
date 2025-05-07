@@ -11,7 +11,7 @@
 # 2. Use the connection string below
 database:
   # Docker PostgreSQL connection (default)
-  connection_string: "postgresql://postgres:swift@localhost:5433/swift_testing"
+  connection_string: "postgresql://postgres:YOUR_PASSWORD@localhost:5433/swift_testing"
   
   # Optional: Override individual connection parameters
   host: "localhost"

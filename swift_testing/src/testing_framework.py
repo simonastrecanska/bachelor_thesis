@@ -357,6 +357,23 @@ class TestingFramework:
             logger.error(f"Complete test run failed: {e}")
             return {"error": str(e)}
 
+    def load_model(self, model_path: str) -> None:
+        """
+        Load a routing model from a specified file path.
+        
+        Args:
+            model_path: Path to the saved model file.
+        """
+        try:
+            if not os.path.exists(model_path):
+                raise FileNotFoundError(f"Model file not found: {model_path}")
+                
+            self.router = load_router(model_path)
+            logger.info(f"Successfully loaded routing model from {model_path}")
+        except Exception as e:
+            logger.error(f"Failed to load model from {model_path}: {e}")
+            raise
+
 def create_testing_framework(config_path: str) -> TestingFramework:
     """
     Helper function to create a TestingFramework instance.
